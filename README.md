@@ -12,6 +12,8 @@ El proyecto será desarrollado usando un Diseño Orientado al Dominio de la sigu
 
 ```
 
+Faltan elegir nombres para las carpetas
+
 ## Estructura de la lógica de negocio y persistencia
 
-![Estructura provisional de la lógica de negocio](CD-AppMusic.png)
+![Estructura provisional de la lógica de negocio](estructura-negocio/CD-AppMusic.png)
