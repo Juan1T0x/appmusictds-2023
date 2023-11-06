@@ -1,8 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/eclipse,maven,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse,maven,java
 
-###MacBook (Cambiar si hay problemas)###
-.DS_Store
+###Plugin PMD###
+.pmd
+.ruleset
 
 ### Eclipse ###
 .metadata
