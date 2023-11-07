@@ -1,4 +1,4 @@
-package umu.tds.appmusic.view;
+package umu.tds.view;
 
 import java.awt.EventQueue;
 

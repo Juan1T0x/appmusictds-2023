@@ -1,4 +1,4 @@
-package umu.tds.appmusic.view;
+package umu.tds.view;
 
 import java.awt.EventQueue;
 
@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-public class VentanaMisListas extends JFrame {
+public class VentanaReciente extends JFrame {
 
 	private JPanel contentPane;
 
@@ -17,7 +17,7 @@ public class VentanaMisListas extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					VentanaMisListas frame = new VentanaMisListas();
+					VentanaReciente frame = new VentanaReciente();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -29,7 +29,7 @@ public class VentanaMisListas extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public VentanaMisListas() {
+	public VentanaReciente() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
