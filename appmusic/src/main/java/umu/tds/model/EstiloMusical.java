@@ -1,4 +1,4 @@
-package umu.tds.appmusic.model;
+package umu.tds.model;
 
 public class EstiloMusical {
 
