@@ -14,22 +14,44 @@
 	</properties>
 
 	<dependencies>
+		
+		<!-- https://mvnrepository.com/artifact/com.toedter/jcalendar -->
+		<dependency>
+			<groupId>com.toedter</groupId>
+			<artifactId>jcalendar</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.jtattoo/JTattoo -->
+		<dependency>
+			<groupId>com.jtattoo</groupId>
+			<artifactId>JTattoo</artifactId>
+			<version>1.6.13</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.junit/junit5-engine -->
 		<dependency>
 			<groupId>org.junit</groupId>
 			<artifactId>junit5-engine</artifactId>
 			<version>5.0.0-ALPHA</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.kohsuke/github-api -->
 		<dependency>
-			<groupId>org.kohsuke</groupId>
-			<artifactId>github-api</artifactId>
-			<version>1.315</version>
+		    <groupId>org.kohsuke</groupId>
+		    <artifactId>github-api</artifactId>
+		    <version>1.315</version>
 		</dependency>
+
+		
 	</dependencies>
 </project>
