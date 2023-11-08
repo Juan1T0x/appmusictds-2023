@@ -48,7 +48,7 @@ public class VentanaLogin {
 		crearPanelTitulo();
 		crearPanelLogin();
 
-		frmLogin.setResizable(false);
+		frmLogin.setResizable(true);
 		frmLogin.pack();
 	}
 
@@ -122,27 +122,21 @@ public class VentanaLogin {
 
 		JButton btnRegistro = new JButton("Registro");
 		panelBotonesLoginRegistro.add(btnRegistro);
+		
+		JButton btnGitHub = new JButton("GitHub");
+		btnGitHub.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		panelBotonesLoginRegistro.add(btnGitHub);
 
 		JPanel panelBotonSalir = new JPanel();
 		panelBotones.add(panelBotonSalir, BorderLayout.EAST);
-
-		JButton btnSalir = new JButton("Salir");
-		panelBotonSalir.add(btnSalir);
-
-//		addManejadorBotonLogin(btnLogin);
-//		addManejadorBotonRegistro(btnRegistro);
-		addManejadorBotonSalir(btnSalir);
 		
 		return panelBotones;
 	}
 
 	private void addManejadorBotonSalir(JButton btnSalir) {
-		btnSalir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frmLogin.dispose();
-				System.exit(0);
-			}
-		});
 	}
 //
 //	private void addManejadorBotonRegistro(JButton btnRegistro) {
