@@ -4,14 +4,15 @@ import java.util.List;
 
 public class Cancion {
 
+	private int codigo;
 	private String titulo;
-	private List<Interprete> interpretes;
+	private List <Interprete> interpretes;
 	private EstiloMusical estilo;
 
 	private long numReproducciones;
 
 	public Cancion(String titulo, List<Interprete> interpretes, EstiloMusical estilo) {
-		super();
+		this.codigo = 0;
 		this.titulo = titulo;
 		this.interpretes = interpretes;
 		this.estilo = estilo;
@@ -50,11 +51,19 @@ public class Cancion {
 	public void setNumReproducciones(long numReproducciones) {
 		this.numReproducciones = numReproducciones;
 	}
-
+	
+	public int getCodigo() {
+		return codigo;
+	}
+	
+	public void setCodigo(int codigo) {
+		this.codigo = codigo;
+	}
+	
 	@Override
 	public String toString() {
-		return "Cancion [titulo=" + titulo + ", interpretes=" + interpretes + ", estilo=" + estilo
-				+ ", numReproducciones=" + numReproducciones + "]";
+		return "Cancion [codigo=" + codigo + ", titulo=" + titulo + ", interpretes=" + interpretes + ", estilo="
+				+ estilo + ", numReproducciones=" + numReproducciones + "]";
 	}
 
 }

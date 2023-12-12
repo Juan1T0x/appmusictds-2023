@@ -1,30 +1,41 @@
 package umu.tds.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class Usuario {
+	
+	public static final int MAX = 10;
 
-	private static int max = 10;
-
+	private int codigo;
 	private String email;
 	private Date fechaNac;
 	private String user;
 	private String password;
 
 	private boolean premium;
-	private List<Cancion> cancionesRecientes;
+	private Queue<Cancion> cancionesRecientes;
+	
+	//private List <Playlist> playlists;
 
-	public Usuario(String email, Date fechaNac, String user, String password) {
-		super();
+	public Usuario(String email, Date fechaNac, String user, String password, boolean premium) {
+		this.codigo = 0;
 		this.email = email;
 		this.fechaNac = fechaNac;
 		this.user = user;
 		this.password = password;
 
 		this.premium = false;
-		cancionesRecientes = new ArrayList<Cancion>(max);
+		this.cancionesRecientes = new ArrayBlockingQueue <Cancion>(MAX);
+	}
+
+	public int getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(int codigo) {
+		this.codigo = codigo;
 	}
 
 	public String getEmail() {
@@ -67,26 +78,23 @@ public class Usuario {
 		this.premium = premium;
 	}
 
-	public static int getMax() {
-		return max;
-	}
-
-	public static void setMax(int max) {
-		Usuario.max = max;
-	}
-
-	public List<Cancion> getCancionesRecientes() {
+	public Queue<Cancion> getCancionesRecientes() {
 		return cancionesRecientes;
 	}
 
-	public void setCancionesRecientes(List<Cancion> cancionesRecientes) {
+	public void setCancionesRecientes(Queue<Cancion> cancionesRecientes) {
 		this.cancionesRecientes = cancionesRecientes;
+	}
+	
+	public boolean addCancionRecientes(Cancion cancion) {
+		return this.cancionesRecientes.add(cancion);
 	}
 
 	@Override
 	public String toString() {
-		return "Usuario [email=" + email + ", fechaNac=" + fechaNac + ", user=" + user + ", password=" + password
-				+ ", premium=" + premium + ", cancionesRecientes=" + cancionesRecientes + "]";
+		return "Usuario [codigo=" + codigo + ", email=" + email + ", fechaNac=" + fechaNac + ", user=" + user
+				+ ", password=" + password + ", premium=" + premium + ", cancionesRecientes=" + cancionesRecientes
+				+ "]";
 	}
 
 }
