@@ -1,6 +1,7 @@
 package umu.tds.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -12,8 +13,12 @@ import umu.tds.model.Interprete;
 import umu.tds.model.RepositorioCanciones;
 import umu.tds.model.RepositorioInterpretes;
 import umu.tds.model.RepositorioUsuarios;
+import umu.tds.model.Usuario;
 import umu.tds.persistencia.AdaptadorCancionDAO;
 import umu.tds.persistencia.AdaptadorInterpreteDAO;
+import umu.tds.persistencia.AdaptadorUsuarioDAO;
+import umu.tds.persistencia.DAOException;
+import umu.tds.persistencia.FactoriaDAO;
 
 public class AppMusic {
 	
@@ -21,13 +26,15 @@ public class AppMusic {
 	
 	private AdaptadorCancionDAO adaptadorCancion;
 	private AdaptadorInterpreteDAO adaptadorInterprete;
+	private AdaptadorUsuarioDAO adaptadorUsuario;
 	
 	private RepositorioCanciones repoCanciones;
 	private RepositorioInterpretes repoInterpretes;
 	private RepositorioUsuarios repoUsuarios;
 	
 	private AppMusic() {
-		
+		inicializarAdaptadores();
+		inicializarRepositorios();
 	}
 	
 	public static AppMusic getUnicaInstancia() {
@@ -102,5 +109,29 @@ public class AppMusic {
 	
 	public List<Interprete> getInterpretes() {
 		return repoInterpretes.getInterpretes();
+	}
+	
+	public void registrarUsuario(String email, Date fechaNac, String user, String password, boolean premium) {
+		Usuario usuario = new Usuario(email, fechaNac, user, password, premium);
+		adaptadorUsuario.registrarUsuario(usuario);
+		repoUsuarios.addUsuario(usuario);
+	}
+	
+	private void inicializarRepositorios() {
+		repoCanciones = RepositorioCanciones.getUnicaInstancia();
+		repoInterpretes = RepositorioInterpretes.getUnicaInstancia();
+		repoUsuarios = RepositorioUsuarios.getUnicaInstancia();
+	}
+	
+	private void inicializarAdaptadores() {
+		FactoriaDAO factoria = null;
+		try {
+			factoria = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		adaptadorUsuario = factoria.getUsuarioDAO();
+		adaptadorCancion = factoria.getCancionDAO();
+		adaptadorInterprete = factoria.getInterpreteDAO();
 	}
 }
