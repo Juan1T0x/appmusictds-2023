@@ -38,6 +38,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/DriverPersistencia.jar"/>
-	<classpathentry kind="lib" path="C:/Users/juan_/Downloads/jcalendar-1.4.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
