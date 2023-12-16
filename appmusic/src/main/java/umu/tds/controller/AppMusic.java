@@ -32,6 +32,7 @@ public class AppMusic {
 	private RepositorioInterpretes repoInterpretes;
 	private RepositorioUsuarios repoUsuarios;
 	
+
 	private AppMusic() {
 		inicializarAdaptadores();
 		inicializarRepositorios();

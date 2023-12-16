@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -21,6 +22,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import com.toedter.calendar.JCalendar;
+
+import umu.tds.controller.AppMusic;
 
 public class VentanaLogin {
 
@@ -75,7 +78,7 @@ public class VentanaLogin {
 	private void crearPanelLogin() {
 		panelLogin = new JPanel();
 		panelLogin.setBorder(new EmptyBorder(10, 10, 10, 10));
-		frmLogin.getContentPane().add(panelLogin, BorderLayout.CENTER);
+		frmLogin.getContentPane().add(panelLogin, BorderLayout.SOUTH);
 		panelLogin.setLayout(new BorderLayout(0, 0));
 
 		panelLogin.add(crearPanelCampos(), BorderLayout.NORTH);
@@ -238,6 +241,23 @@ public class VentanaLogin {
 	        public void actionPerformed(ActionEvent e) {
 	            System.out.println("Usuario: " + textUser.getText() + ", Contraseña: " + passwordField.getText()
 	                    + ", email: " + textEmail.getText() + ", fechaNac: " + calendar.getDate().toString());
+	            String email = textEmail.getText();
+	            Date fechaNac = calendar.getDate();
+	            String user = textUser.getText();
+	            String password = passwordField.getText();
+	            boolean premium = false; // TODO
+	            
+	            if (email == null || fechaNac == null || user == null || password == null) {
+	            	JOptionPane.showMessageDialog(panelBotones, "Parámetros incorrectos, intentelo de nuevo", "Error",
+		                    JOptionPane.ERROR_MESSAGE);
+	            }else {
+	            	AppMusic.getUnicaInstancia().registrarUsuario(email, fechaNac, user, password, premium);
+	            	JOptionPane.showMessageDialog(panelBotones, "Usuario dado de alta", "Registrar usuario",
+							JOptionPane.PLAIN_MESSAGE);
+	            }
+	            
+	            textEmail.setText("");
+	            textUser.setText(password);
 	        }
 	    });
 	    panelBotones.add(btnRegister);

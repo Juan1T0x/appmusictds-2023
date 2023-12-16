@@ -1,6 +1,7 @@
 package umu.tds.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ public class RepositorioInterpretes {
 		try {
 			dao = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
 			adaptadorInterprete = dao.getInterpreteDAO();
+			interpretes = new HashMap<Integer, Interprete>();
 			this.cargarCatalogo();
 		} catch(DAOException e) {
 			e.printStackTrace();

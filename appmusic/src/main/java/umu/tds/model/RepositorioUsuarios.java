@@ -1,6 +1,7 @@
 package umu.tds.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class RepositorioUsuarios {
 		try {
 			dao = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
 			adaptadorUsuario = dao.getUsuarioDAO();
+			usuarios = new HashMap<Integer, Usuario>();
 			this.cargarCatalogo();
 		} catch (DAOException e) {
 			e.printStackTrace();
