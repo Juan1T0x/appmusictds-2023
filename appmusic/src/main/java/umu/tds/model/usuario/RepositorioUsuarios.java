@@ -1,4 +1,4 @@
-package umu.tds.model;
+package umu.tds.model.usuario;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public class RepositorioUsuarios {
 		try {
 			dao = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
 			adaptadorUsuario = dao.getUsuarioDAO();
-			usuarios = new HashMap<Integer, Usuario>();
+			usuarios = new HashMap<>();
 			this.cargarCatalogo();
 		} catch (DAOException e) {
 			e.printStackTrace();
@@ -34,8 +34,8 @@ public class RepositorioUsuarios {
 		return unicaInstancia;
 	}
 
-	public List<Usuario> getCanciones() {
-		ArrayList<Usuario> lista = new ArrayList<Usuario>();
+	public List<Usuario> getUsuarios() {
+		ArrayList<Usuario> lista = new ArrayList<>();
 
 		for (Usuario usuario : usuarios.values())
 			lista.add(usuario);

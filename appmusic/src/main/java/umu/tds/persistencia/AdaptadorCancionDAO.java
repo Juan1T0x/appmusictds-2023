@@ -2,7 +2,7 @@ package umu.tds.persistencia;
 
 import java.util.List;
 
-import umu.tds.model.Cancion;
+import umu.tds.model.cancion.Cancion;
 
 public interface AdaptadorCancionDAO {
 

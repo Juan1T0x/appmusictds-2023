@@ -1,8 +1,10 @@
-package umu.tds.model;
+package umu.tds.model.usuario;
 
 import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import umu.tds.model.cancion.Cancion;
 
 public class Usuario {
 

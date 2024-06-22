@@ -2,37 +2,30 @@ package umu.tds.persistencia;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
 
 import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-import umu.tds.model.Cancion;
-import umu.tds.model.Usuario;
+import umu.tds.model.cancion.Cancion;
+import umu.tds.model.usuario.Usuario;
 
 public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 
 	private static final String CODIGO = "codigo";
-
 	private static final String CANCIONES_RECIENTES = "cancionesRecientes";
-
 	private static final String PREMIUM = "premium";
-
 	private static final String PASSWORD = "password";
-
 	private static final String USER = "user";
-
 	private static final String FECHA_NAC = "fechaNac";
-
 	private static final String EMAIL = "email";
-
 	private static final String USUARIO = "usuario";
 
 	private SimpleDateFormat dateFormat;
@@ -53,59 +46,61 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 
 	@Override
 	public void registrarUsuario(Usuario usuario) {
-		Entidad eUsuario = null;
 		try {
-			eUsuario = servPersistencia.recuperarEntidad(usuario.getCodigo());
+			if (servPersistencia.recuperarEntidad(usuario.getCodigo()) != null)
+				return;
 		} catch (NullPointerException e) {
+			// El usuario no existe, proceder con el registro
 		}
 
-		if (eUsuario != null)
-			return;
-
-		eUsuario = new Entidad();
-
+		Entidad eUsuario = new Entidad();
 		eUsuario.setNombre(USUARIO);
 
-		eUsuario.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad(EMAIL, usuario.getEmail()),
+		eUsuario.setPropiedades(Arrays.asList(new Propiedad(EMAIL, usuario.getEmail()),
 				new Propiedad(FECHA_NAC, dateFormat.format(usuario.getFechaNac())),
 				new Propiedad(USER, usuario.getUser()), new Propiedad(PASSWORD, usuario.getPassword()),
 				new Propiedad(PREMIUM, String.valueOf(usuario.isPremium())),
-				new Propiedad(CANCIONES_RECIENTES, obtenerStringCancionesRecientes(usuario.getCancionesRecientes())))));
+				new Propiedad(CANCIONES_RECIENTES, obtenerStringCancionesRecientes(usuario.getCancionesRecientes()))));
 
 		eUsuario = servPersistencia.registrarEntidad(eUsuario);
 		usuario.setCodigo(eUsuario.getId());
-
 	}
 
 	@Override
 	public void borrarUsuario(Usuario usuario) {
 		Entidad eUsuario = servPersistencia.recuperarEntidad(usuario.getCodigo());
-
-		servPersistencia.borrarEntidad(eUsuario);
+		if (eUsuario != null) {
+			servPersistencia.borrarEntidad(eUsuario);
+		}
 	}
 
 	@Override
 	public void modificarUsuario(Usuario usuario) {
 		Entidad eUsuario = servPersistencia.recuperarEntidad(usuario.getCodigo());
 
-		for (Propiedad propiedad : eUsuario.getPropiedades()) {
-			if (propiedad.getNombre().equals(CODIGO))
-				propiedad.setValor(String.valueOf(usuario.getCodigo()));
-			else if (propiedad.getNombre().equals(EMAIL))
-				propiedad.setValor(usuario.getEmail());
-			else if (propiedad.getNombre().equals(FECHA_NAC))
-				propiedad.setValor(dateFormat.format(usuario.getFechaNac()));
-			else if (propiedad.getNombre().equals(USER))
-				propiedad.setValor(usuario.getUser());
-			else if (propiedad.getNombre().equals(PASSWORD))
-				propiedad.setValor(usuario.getPassword());
-			else if (propiedad.getNombre().equals(PREMIUM))
-				propiedad.setValor(String.valueOf(usuario.isPremium()));
-			else if (propiedad.getNombre().equals(CANCIONES_RECIENTES))
-				propiedad.setValor(obtenerStringCancionesRecientes(usuario.getCancionesRecientes()));
-
-			servPersistencia.modificarPropiedad(propiedad);
-		}
+		eUsuario.getPropiedades().forEach(prop -> {
+			switch (prop.getNombre()) {
+			case EMAIL:
+				prop.setValor(usuario.getEmail());
+				break;
+			case FECHA_NAC:
+				prop.setValor(dateFormat.format(usuario.getFechaNac()));
+				break;
+			case USER:
+				prop.setValor(usuario.getUser());
+				break;
+			case PASSWORD:
+				prop.setValor(usuario.getPassword());
+				break;
+			case PREMIUM:
+				prop.setValor(String.valueOf(usuario.isPremium()));
+				break;
+			case CANCIONES_RECIENTES:
+				prop.setValor(obtenerStringCancionesRecientes(usuario.getCancionesRecientes()));
+				break;
+			}
+			servPersistencia.modificarPropiedad(prop);
+		});
 	}
 
 	@Override
@@ -121,45 +116,41 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 		}
 		String user = servPersistencia.recuperarPropiedadEntidad(eUsuario, USER);
 		String password = servPersistencia.recuperarPropiedadEntidad(eUsuario, PASSWORD);
-		boolean premium = Boolean.getBoolean(servPersistencia.recuperarPropiedadEntidad(eUsuario, PREMIUM));
+		boolean premium = Boolean.parseBoolean(servPersistencia.recuperarPropiedadEntidad(eUsuario, PREMIUM));
 
 		Usuario usuario = new Usuario(email, fechaNac, user, password, premium);
 
 		Queue<Cancion> cancionesRecientes = obtenerCancionesDesdeCodigos(
 				servPersistencia.recuperarPropiedadEntidad(eUsuario, CANCIONES_RECIENTES));
 
-		for (Cancion cancion : cancionesRecientes)
-			usuario.addCancionRecientes(cancion);
+		cancionesRecientes.forEach(usuario::addCancionRecientes);
+
+		usuario.setCodigo(codigo);
 
 		return usuario;
 	}
 
 	@Override
 	public List<Usuario> recuperarUsuarios() {
-		List<Entidad> eUsuarios = servPersistencia.recuperarEntidades(USUARIO);
-		List<Usuario> usuarios = new ArrayList<Usuario>();
-
-		for (Entidad eUsuario : eUsuarios)
-			usuarios.add(recuperarUsuario(eUsuario.getId()));
-
-		return usuarios;
+		return servPersistencia.recuperarEntidades(USUARIO).stream().map(eUsuario -> recuperarUsuario(eUsuario.getId()))
+				.collect(Collectors.toList());
 	}
 
 	private String obtenerStringCancionesRecientes(Queue<Cancion> cancionesRecientes) {
-		String lineas = "";
-		for (Cancion cancion : cancionesRecientes)
-			lineas += cancion.getCodigo() + " ";
-		return lineas.trim();
+		return cancionesRecientes.stream().map(cancion -> String.valueOf(cancion.getCodigo()))
+				.collect(Collectors.joining(" "));
 	}
 
-	public Queue<Cancion> obtenerCancionesDesdeCodigos(String codigos) {
-		Queue<Cancion> cancionesRecientes = new ArrayBlockingQueue<Cancion>(Usuario.MAX);
+	private Queue<Cancion> obtenerCancionesDesdeCodigos(String codigos) {
+		Queue<Cancion> cancionesRecientes = new ArrayBlockingQueue<>(Usuario.MAX);
 		StringTokenizer strTok = new StringTokenizer(codigos, " ");
 		AdaptadorCancionTDS adaptadorCancion = AdaptadorCancionTDS.getUnicaInstancia();
 
-		while (strTok.hasMoreElements())
-			cancionesRecientes.add(adaptadorCancion.recuperarCancion(Integer.valueOf((String) strTok.nextElement())));
+		while (strTok.hasMoreElements()) {
+			int codigoCancion = Integer.parseInt(strTok.nextToken());
+			Cancion cancion = adaptadorCancion.recuperarCancion(codigoCancion);
+			cancionesRecientes.add(cancion);
+		}
 		return cancionesRecientes;
 	}
-
 }

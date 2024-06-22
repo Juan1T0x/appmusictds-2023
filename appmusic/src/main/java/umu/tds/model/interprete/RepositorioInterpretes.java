@@ -1,4 +1,4 @@
-package umu.tds.model;
+package umu.tds.model.interprete;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class RepositorioInterpretes {
 	}
 
 	public void cargarCatalogo() throws DAOException {
-		List<Interprete> interpretesBD = adaptadorInterprete.recuperarInterpretees();
+		List<Interprete> interpretesBD = adaptadorInterprete.recuperarInterpretes();
 		for (Interprete interprete : interpretesBD)
 			interpretes.put(interprete.getCodigo(), interprete);
 	}

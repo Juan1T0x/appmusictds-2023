@@ -1,4 +1,4 @@
-package umu.tds.model;
+package umu.tds.model.interprete;
 
 public class Interprete {
 

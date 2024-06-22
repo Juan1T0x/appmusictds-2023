@@ -8,7 +8,7 @@ import beans.Entidad;
 import beans.Propiedad;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
-import umu.tds.model.Interprete;
+import umu.tds.model.interprete.Interprete;
 
 public class AdaptadorInterpreteTDS implements AdaptadorInterpreteDAO {
 
@@ -88,7 +88,7 @@ public class AdaptadorInterpreteTDS implements AdaptadorInterpreteDAO {
 	}
 
 	@Override
-	public List<Interprete> recuperarInterpretees() {
+	public List<Interprete> recuperarInterpretes() {
 		List<Entidad> eInterpretes = servPersistencia.recuperarEntidades(INTERPRETE);
 		List<Interprete> interpretes = new ArrayList<Interprete>();
 

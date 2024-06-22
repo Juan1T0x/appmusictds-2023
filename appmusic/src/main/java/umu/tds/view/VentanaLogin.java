@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-//import umu.tds.controller.Controlador;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -165,6 +164,7 @@ public class VentanaLogin {
 		JButton btnGitHub = new JButton("GitHub");
 		btnGitHub.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				loginConGitHub();
 			}
 		});
 		panelBotonesLoginRegistro.add(btnGitHub);
@@ -264,34 +264,54 @@ public class VentanaLogin {
 		return panelCentral;
 	}
 
+	private void loginConGitHub() {
+		String usuario = textUsuario.getText();
+		String password = new String(textPassword.getPassword());
+
+		boolean autenticado = AppMusic.getUnicaInstancia().loginConGitHub(usuario, password);
+
+		if (autenticado) {
+			JOptionPane.showMessageDialog(frmLogin, "Inicio de sesión exitoso con GitHub", "Login",
+					JOptionPane.INFORMATION_MESSAGE);
+			frmLogin.dispose();
+			VentanaPrincipal ventanaPrincipal = new VentanaPrincipal();
+			ventanaPrincipal.setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(frmLogin, "Nombre de usuario o contraseña no válido", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	private void addManejadorBotonSalir(JButton btnSalir) {
 	}
-//
-//	private void addManejadorBotonRegistro(JButton btnRegistro) {
-//		btnRegistro.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				RegistroView registroView = new RegistroView();
-//				registroView.mostrarVentana();
-//				frmLogin.dispose();
-//			}
-//		});
-//	}
-//
-//	private void addManejadorBotonLogin(JButton btnLogin) {
-//		btnLogin.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				boolean login = Controlador.getUnicaInstancia().loginUsuario(textUsuario.getText(),
-//						new String(textPassword.getPassword()));
-//
-//				if (login) {
-//					VentanaPrincipal window = new VentanaPrincipal();
-//					window.mostrarVentana();
-//					frmLogin.dispose();
-//				} else
-//					JOptionPane.showMessageDialog(frmLogin, "Nombre de usuario o contrase�a no valido",
-//							"Error", JOptionPane.ERROR_MESSAGE);
-//			}
-//		});
-//	}
 
+	//
+	// private void addManejadorBotonRegistro(JButton btnRegistro) {
+	// btnRegistro.addActionListener(new ActionListener() {
+	// public void actionPerformed(ActionEvent e) {
+	// RegistroView registroView = new RegistroView();
+	// registroView.mostrarVentana();
+	// frmLogin.dispose();
+	// }
+	// });
+	// }
+	//
+	// private void addManejadorBotonLogin(JButton btnLogin) {
+	// btnLogin.addActionListener(new ActionListener() {
+	// public void actionPerformed(ActionEvent e) {
+	// boolean login =
+	// Controlador.getUnicaInstancia().loginUsuario(textUsuario.getText(),
+	// new String(textPassword.getPassword()));
+	//
+	// if (login) {
+	// VentanaPrincipal window = new VentanaPrincipal();
+	// window.mostrarVentana();
+	// frmLogin.dispose();
+	// } else
+	// JOptionPane.showMessageDialog(frmLogin, "Nombre de usuario o contrase�a no
+	// valido",
+	// "Error", JOptionPane.ERROR_MESSAGE);
+	// }
+	// });
+	// }
 }

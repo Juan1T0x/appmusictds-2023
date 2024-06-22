@@ -2,6 +2,8 @@ package umu.tds.model;
 
 import java.util.List;
 
+import umu.tds.model.cancion.Cancion;
+
 public class Playlist {
 
 	private String nombre;

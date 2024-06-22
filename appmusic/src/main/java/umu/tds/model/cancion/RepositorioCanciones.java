@@ -1,4 +1,4 @@
-package umu.tds.model;
+package umu.tds.model.cancion;
 
 import java.util.ArrayList;
 import java.util.HashMap;

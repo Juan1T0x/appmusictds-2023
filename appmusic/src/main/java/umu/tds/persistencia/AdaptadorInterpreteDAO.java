@@ -2,7 +2,7 @@ package umu.tds.persistencia;
 
 import java.util.List;
 
-import umu.tds.model.Interprete;
+import umu.tds.model.interprete.Interprete;
 
 public interface AdaptadorInterpreteDAO {
 
@@ -14,5 +14,5 @@ public interface AdaptadorInterpreteDAO {
 
 	public Interprete recuperarInterprete(int codigo);
 
-	public List<Interprete> recuperarInterpretees();
+	public List<Interprete> recuperarInterpretes();
 }

@@ -1,6 +1,9 @@
-package umu.tds.model;
+package umu.tds.model.cancion;
 
 import java.util.List;
+
+import umu.tds.model.EstiloMusical;
+import umu.tds.model.interprete.Interprete;
 
 public class Cancion {
 
