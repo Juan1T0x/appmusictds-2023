@@ -46,44 +46,44 @@ public class VentanaReciente extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
-		
+
 		JPanel panel_principal = new JPanel();
 		contentPane.add(panel_principal, BorderLayout.CENTER);
 		panel_principal.setLayout(new BorderLayout(0, 0));
-		
+
 		JPanel panel_Bienvenida = new JPanel();
 		panel_principal.add(panel_Bienvenida, BorderLayout.NORTH);
-		
+
 		JLabel lbBienvenida = new JLabel("Bienvenido, usuario");
 		panel_Bienvenida.add(lbBienvenida);
-		
+
 		JButton btnPremium = new JButton("Premium");
 		panel_Bienvenida.add(btnPremium);
-		
+
 		JButton btnLogout = new JButton("Logout");
 		btnLogout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		panel_Bienvenida.add(btnLogout);
-		
+
 		JPanel panel_lateral = new JPanel();
 		contentPane.add(panel_lateral, BorderLayout.WEST);
 		panel_lateral.setLayout(new GridLayout(5, 0, 0, 0));
-		
+
 		JButton btnBuscar = new JButton("Buscar");
 		panel_lateral.add(btnBuscar);
-		
+
 		JButton btnGestionPlaylist = new JButton("Gestión Playlists");
 		btnGestionPlaylist.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		panel_lateral.add(btnGestionPlaylist);
-		
+
 		JButton btnRecientes = new JButton("Recientes");
 		panel_lateral.add(btnRecientes);
-		
+
 		JButton btnMisPlaylist = new JButton("Mis Playlists");
 		panel_lateral.add(btnMisPlaylist);
 	}

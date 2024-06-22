@@ -42,7 +42,7 @@ public class RepositorioUsuarios {
 		return lista;
 	}
 
-	public Usuario getUsuario (int key) {
+	public Usuario getUsuario(int key) {
 		return usuarios.get(key);
 	}
 

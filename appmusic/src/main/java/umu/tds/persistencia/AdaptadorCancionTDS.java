@@ -19,59 +19,56 @@ public class AdaptadorCancionTDS implements AdaptadorCancionDAO {
 	private static final String INTERPRETES = "interpretes";
 	private static final String NOMBRE = "nombre";
 	private static final String CANCION = "cancion";
-	
+
 	private static ServicioPersistencia servPersistencia;
-	private static AdaptadorCancionTDS unicaInstancia = null;	
-	
+	private static AdaptadorCancionTDS unicaInstancia = null;
+
 	public static AdaptadorCancionTDS getUnicaInstancia() {
 		if (unicaInstancia == null)
 			unicaInstancia = new AdaptadorCancionTDS();
 		return unicaInstancia;
 	}
-	
+
 	private AdaptadorCancionTDS() {
-		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();		
+		servPersistencia = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
-	
+
 	@Override
 	public void registrarCancion(Cancion cancion) {
 		Entidad eCancion = null;
 		try {
 			eCancion = servPersistencia.recuperarEntidad(cancion.getCodigo());
-		} catch (NullPointerException e) {}
-		
-		if (eCancion != null) 
+		} catch (NullPointerException e) {
+		}
+
+		if (eCancion != null)
 			return;
-		
+
 		eCancion = new Entidad();
-		
+
 		eCancion.setNombre(CANCION);
-		
-		eCancion.setPropiedades(new ArrayList<Propiedad>(
-			Arrays.asList(new Propiedad(NOMBRE, cancion.getTitulo()),
-					new Propiedad(INTERPRETES, obtenerNombreInterpretes(cancion.getInterpretes())),
-					new Propiedad(ESTILO, cancion.getEstilo().getNombre())
-					)
-			)
-		);
-		
+
+		eCancion.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad(NOMBRE, cancion.getTitulo()),
+				new Propiedad(INTERPRETES, obtenerNombreInterpretes(cancion.getInterpretes())),
+				new Propiedad(ESTILO, cancion.getEstilo().getNombre()))));
+
 		eCancion = servPersistencia.registrarEntidad(eCancion);
 		cancion.setCodigo(eCancion.getId());
-				
+
 	}
 
 	@Override
 	public void borrarCancion(Cancion cancion) {
 		Entidad eCancion = servPersistencia.recuperarEntidad(cancion.getCodigo());
-		
+
 		servPersistencia.borrarEntidad(eCancion);
 	}
 
 	@Override
 	public void modificarCancion(Cancion cancion) {
 		Entidad eCancion = servPersistencia.recuperarEntidad(cancion.getCodigo());
-		
-		for (Propiedad propiedad: eCancion.getPropiedades()) {
+
+		for (Propiedad propiedad : eCancion.getPropiedades()) {
 			if (propiedad.getNombre().equals("codigo"))
 				propiedad.setValor(String.valueOf(cancion.getCodigo()));
 			else if (propiedad.getNombre().equals(NOMBRE))
@@ -80,7 +77,7 @@ public class AdaptadorCancionTDS implements AdaptadorCancionDAO {
 				propiedad.setValor(obtenerNombreInterpretes(cancion.getInterpretes()));
 			else if (propiedad.getNombre().equals(ESTILO))
 				propiedad.setValor(cancion.getEstilo().getNombre());
-			
+
 			servPersistencia.modificarPropiedad(propiedad);
 		}
 	}
@@ -89,19 +86,19 @@ public class AdaptadorCancionTDS implements AdaptadorCancionDAO {
 	public Cancion recuperarCancion(int codigo) {
 		Entidad eCancion;
 		String nombre;
-		List <Interprete> interpretes;
+		List<Interprete> interpretes;
 		EstiloMusical estilo;
-		
+
 		eCancion = servPersistencia.recuperarEntidad(codigo);
-		
+
 		nombre = servPersistencia.recuperarPropiedadEntidad(eCancion, NOMBRE);
 		estilo = new EstiloMusical(servPersistencia.recuperarPropiedadEntidad(eCancion, ESTILO));
-		
+
 		interpretes = obtenerInterpretesDesdeCodigos(servPersistencia.recuperarPropiedadEntidad(eCancion, INTERPRETES));
-		
+
 		Cancion cancion = new Cancion(nombre, interpretes, estilo);
-		cancion.setCodigo(eCancion.getId());		
-		
+		cancion.setCodigo(eCancion.getId());
+
 		return cancion;
 	}
 
@@ -115,21 +112,20 @@ public class AdaptadorCancionTDS implements AdaptadorCancionDAO {
 		}
 		return canciones;
 	}
-	
-	
+
 	private String obtenerNombreInterpretes(List<Interprete> interpretes) {
 		String lineas = "";
-		for (Interprete i: interpretes)
+		for (Interprete i : interpretes)
 			lineas += i.getNombre() + " ";
 		return lineas.trim();
 	}
-	
+
 	public List<Interprete> obtenerInterpretesDesdeCodigos(String codigos) {
-		List<Interprete> interpretes = new  ArrayList<Interprete>();
+		List<Interprete> interpretes = new ArrayList<Interprete>();
 		StringTokenizer strTok = new StringTokenizer(codigos, " ");
 		AdaptadorInterpreteTDS adaptadorInterprete = AdaptadorInterpreteTDS.getUnicaInstancia();
-		
-		while(strTok.hasMoreElements())
+
+		while (strTok.hasMoreElements())
 			interpretes.add(adaptadorInterprete.recuperarInterprete(Integer.valueOf((String) strTok.nextElement())));
 		return interpretes;
 	}

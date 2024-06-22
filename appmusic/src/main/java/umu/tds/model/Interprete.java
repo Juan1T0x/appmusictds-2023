@@ -4,7 +4,7 @@ public class Interprete {
 
 	private int codigo;
 	private String nombre;
-	
+
 	public Interprete(String nombre) {
 		this.codigo = 0;
 		this.nombre = nombre;

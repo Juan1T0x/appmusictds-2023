@@ -6,7 +6,7 @@ public class Cancion {
 
 	private int codigo;
 	private String titulo;
-	private List <Interprete> interpretes;
+	private List<Interprete> interpretes;
 	private EstiloMusical estilo;
 
 	private long numReproducciones;
@@ -51,15 +51,15 @@ public class Cancion {
 	public void setNumReproducciones(long numReproducciones) {
 		this.numReproducciones = numReproducciones;
 	}
-	
+
 	public int getCodigo() {
 		return codigo;
 	}
-	
+
 	public void setCodigo(int codigo) {
 		this.codigo = codigo;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Cancion [codigo=" + codigo + ", titulo=" + titulo + ", interpretes=" + interpretes + ", estilo="

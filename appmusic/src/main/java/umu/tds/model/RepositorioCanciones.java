@@ -20,7 +20,7 @@ public class RepositorioCanciones {
 		try {
 			dao = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
 			adaptadorCancion = dao.getCancionDAO();
-			canciones = new HashMap<Integer,Cancion>();
+			canciones = new HashMap<Integer, Cancion>();
 			this.cargarCatalogo();
 		} catch (DAOException e) {
 			e.printStackTrace();

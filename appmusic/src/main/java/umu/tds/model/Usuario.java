@@ -5,7 +5,7 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class Usuario {
-	
+
 	public static final int MAX = 10;
 
 	private int codigo;
@@ -16,8 +16,8 @@ public class Usuario {
 
 	private boolean premium;
 	private Queue<Cancion> cancionesRecientes;
-	
-	//private List <Playlist> playlists;
+
+	// private List <Playlist> playlists;
 
 	public Usuario(String email, Date fechaNac, String user, String password, boolean premium) {
 		this.codigo = 0;
@@ -27,7 +27,7 @@ public class Usuario {
 		this.password = password;
 
 		this.premium = false;
-		this.cancionesRecientes = new ArrayBlockingQueue <Cancion>(MAX);
+		this.cancionesRecientes = new ArrayBlockingQueue<Cancion>(MAX);
 	}
 
 	public int getCodigo() {
@@ -85,7 +85,7 @@ public class Usuario {
 	public void setCancionesRecientes(Queue<Cancion> cancionesRecientes) {
 		this.cancionesRecientes = cancionesRecientes;
 	}
-	
+
 	public boolean addCancionRecientes(Cancion cancion) {
 		return this.cancionesRecientes.add(cancion);
 	}

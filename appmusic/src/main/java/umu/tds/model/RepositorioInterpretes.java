@@ -12,7 +12,7 @@ import umu.tds.persistencia.FactoriaDAO;
 public class RepositorioInterpretes {
 	private Map<Integer, Interprete> interpretes;
 	private static RepositorioInterpretes unicaInstancia = null;
-	
+
 	private FactoriaDAO dao;
 	AdaptadorInterpreteDAO adaptadorInterprete;
 
@@ -22,7 +22,7 @@ public class RepositorioInterpretes {
 			adaptadorInterprete = dao.getInterpreteDAO();
 			interpretes = new HashMap<Integer, Interprete>();
 			this.cargarCatalogo();
-		} catch(DAOException e) {
+		} catch (DAOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -32,27 +32,27 @@ public class RepositorioInterpretes {
 			unicaInstancia = new RepositorioInterpretes();
 		return unicaInstancia;
 	}
-	
+
 	public List<Interprete> getInterpretes() {
 		List<Interprete> lista = new ArrayList<Interprete>();
-		
-		for (Interprete interprete: interpretes.values())
+
+		for (Interprete interprete : interpretes.values())
 			lista.add(interprete);
 		return lista;
 	}
-	
+
 	public Interprete getInterprete(int key) {
 		return interpretes.get(key);
 	}
-	
+
 	public void addInterprete(Interprete interprete) {
 		interpretes.put(interprete.getCodigo(), interprete);
 	}
-	
+
 	public void cargarCatalogo() throws DAOException {
 		List<Interprete> interpretesBD = adaptadorInterprete.recuperarInterpretees();
-		for (Interprete interprete: interpretesBD)
+		for (Interprete interprete : interpretesBD)
 			interpretes.put(interprete.getCodigo(), interprete);
 	}
-	
+
 }
