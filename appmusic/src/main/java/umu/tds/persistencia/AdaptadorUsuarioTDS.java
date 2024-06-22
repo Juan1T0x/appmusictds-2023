@@ -78,29 +78,28 @@ public class AdaptadorUsuarioTDS implements AdaptadorUsuarioDAO {
 	public void modificarUsuario(Usuario usuario) {
 		Entidad eUsuario = servPersistencia.recuperarEntidad(usuario.getCodigo());
 
-		eUsuario.getPropiedades().forEach(prop -> {
-			switch (prop.getNombre()) {
-			case EMAIL:
-				prop.setValor(usuario.getEmail());
-				break;
-			case FECHA_NAC:
-				prop.setValor(dateFormat.format(usuario.getFechaNac()));
-				break;
-			case USER:
-				prop.setValor(usuario.getUser());
-				break;
-			case PASSWORD:
-				prop.setValor(usuario.getPassword());
-				break;
-			case PREMIUM:
-				prop.setValor(String.valueOf(usuario.isPremium()));
-				break;
-			case CANCIONES_RECIENTES:
-				prop.setValor(obtenerStringCancionesRecientes(usuario.getCancionesRecientes()));
-				break;
+		if (eUsuario == null) {
+			throw new IllegalArgumentException("Usuario no encontrado en la base de datos");
+		}
+
+		for (Propiedad propiedad : eUsuario.getPropiedades()) {
+			if (propiedad.getNombre().equals(CODIGO)) {
+				propiedad.setValor(String.valueOf(usuario.getCodigo()));
+			} else if (propiedad.getNombre().equals(EMAIL)) {
+				propiedad.setValor(usuario.getEmail());
+			} else if (propiedad.getNombre().equals(FECHA_NAC)) {
+				propiedad.setValor(dateFormat.format(usuario.getFechaNac()));
+			} else if (propiedad.getNombre().equals(USER)) {
+				propiedad.setValor(usuario.getUser());
+			} else if (propiedad.getNombre().equals(PASSWORD)) {
+				propiedad.setValor(usuario.getPassword());
+			} else if (propiedad.getNombre().equals(PREMIUM)) {
+				propiedad.setValor(String.valueOf(usuario.isPremium()));
+			} else if (propiedad.getNombre().equals(CANCIONES_RECIENTES)) {
+				propiedad.setValor(obtenerStringCancionesRecientes(usuario.getCancionesRecientes()));
 			}
-			servPersistencia.modificarPropiedad(prop);
-		});
+			servPersistencia.modificarPropiedad(propiedad);
+		}
 	}
 
 	@Override

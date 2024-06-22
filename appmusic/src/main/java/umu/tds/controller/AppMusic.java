@@ -141,6 +141,10 @@ public class AppMusic {
 	}
 
 	public void modificarUsuario(Usuario usuario) {
+		Optional<Usuario> existingUser = getUsuario(usuario.getEmail());
+		if (!existingUser.isPresent()) {
+			throw new IllegalArgumentException("Usuario no encontrado: " + usuario.getEmail());
+		}
 		adaptadorUsuario.modificarUsuario(usuario);
 		repoUsuarios.addUsuario(usuario); // Update the repository as well
 	}

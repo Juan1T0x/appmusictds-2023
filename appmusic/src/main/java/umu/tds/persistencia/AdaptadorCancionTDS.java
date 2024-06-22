@@ -39,16 +39,17 @@ public class AdaptadorCancionTDS implements AdaptadorCancionDAO {
 		try {
 			eCancion = servPersistencia.recuperarEntidad(cancion.getCodigo());
 		} catch (NullPointerException e) {
-			// Manejo de excepción
 		}
 
 		if (eCancion != null)
 			return;
 
 		eCancion = new Entidad();
+
 		eCancion.setNombre(CANCION);
+
 		eCancion.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad(NOMBRE, cancion.getTitulo()),
-				new Propiedad(INTERPRETES, obtenerNombreInterpretes(cancion.getInterpretes())),
+				new Propiedad(INTERPRETES, obtenerCodigosInterpretes(cancion.getInterpretes())),
 				new Propiedad(ESTILO, cancion.getEstilo().getNombre()))));
 
 		eCancion = servPersistencia.registrarEntidad(eCancion);
@@ -124,8 +125,17 @@ public class AdaptadorCancionTDS implements AdaptadorCancionDAO {
 		AdaptadorInterpreteTDS adaptadorInterprete = AdaptadorInterpreteTDS.getUnicaInstancia();
 
 		while (strTok.hasMoreElements()) {
-			interpretes.add(adaptadorInterprete.recuperarInterprete(Integer.parseInt(strTok.nextToken())));
+			int codigo = Integer.parseInt((String) strTok.nextElement());
+			interpretes.add(adaptadorInterprete.recuperarInterprete(codigo));
 		}
 		return interpretes;
+	}
+
+	private String obtenerCodigosInterpretes(List<Interprete> interpretes) {
+		StringBuilder codigos = new StringBuilder();
+		for (Interprete i : interpretes) {
+			codigos.append(i.getCodigo()).append(" ");
+		}
+		return codigos.toString().trim();
 	}
 }
