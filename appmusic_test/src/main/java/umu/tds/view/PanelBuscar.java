@@ -30,6 +30,7 @@ public class PanelBuscar extends JPanel {
 	private JComboBox<String> estilosDropdown;
 
 	private AppMusic appMusic;
+	private List<Cancion> cancionesMostradas; // Lista para almacenar las canciones mostradas actualmente
 
 	public PanelBuscar() {
 
@@ -103,7 +104,7 @@ public class PanelBuscar extends JPanel {
 		String interpreteBusqueda = textBuscarInterprete.getText().trim().toLowerCase();
 		EstiloMusical estiloSeleccionado = (EstiloMusical) estilosDropdown.getSelectedItem();
 
-		List<Cancion> canciones = appMusic.getAllCanciones().stream()
+		cancionesMostradas = appMusic.getAllCanciones().stream()
 				.filter(c -> tituloBusqueda.isEmpty() || c.getTitulo().toLowerCase().contains(tituloBusqueda))
 				.filter(c -> interpreteBusqueda.isEmpty() || c.getInterpretes().stream()
 						.anyMatch(i -> i.getNombre().toLowerCase().contains(interpreteBusqueda)))
@@ -111,12 +112,12 @@ public class PanelBuscar extends JPanel {
 						|| c.getEstilo().getNombre().equals(estiloSeleccionado.getNombre()))
 				.collect(Collectors.toList());
 
-		actualizarTabla(canciones);
+		actualizarTabla(cancionesMostradas);
 	}
 
 	private void mostrarTodasLasCanciones() {
-		List<Cancion> canciones = appMusic.getAllCanciones();
-		actualizarTabla(canciones);
+		cancionesMostradas = appMusic.getAllCanciones();
+		actualizarTabla(cancionesMostradas);
 	}
 
 	private void actualizarTabla(List<Cancion> canciones) {
@@ -129,5 +130,21 @@ public class PanelBuscar extends JPanel {
 			String estilo = cancion.getEstilo().getNombre();
 			model.addRow(new Object[] { titulo, interprete, estilo, false });
 		}
+	}
+
+	public List<Cancion> getCancionesMostradas() {
+		return cancionesMostradas;
+	}
+
+	public List<Cancion> getCancionesSeleccionadas() {
+		DefaultTableModel model = (DefaultTableModel) tableResultadoBusqueda.getModel();
+		return cancionesMostradas.stream().filter(c -> {
+			for (int i = 0; i < model.getRowCount(); i++) {
+				if ((Boolean) model.getValueAt(i, 3) && c.getTitulo().equals(model.getValueAt(i, 0))) {
+					return true;
+				}
+			}
+			return false;
+		}).collect(Collectors.toList());
 	}
 }

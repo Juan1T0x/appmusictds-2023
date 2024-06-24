@@ -43,6 +43,8 @@ public class VentanaPrincipal extends JFrame {
 	private PanelMisPlaylist panelMisPlaylist; // Añadir referencia a PanelMisPlaylist
 	private PanelRecientes panelRecientes; // Añadir referencia a PanelRecientes
 	private PanelMasReproducidas panelMasReproducidas; // Añadir referencia a PanelMasReproducidas
+	private PanelGestionPlaylist panelGestionPlaylist; // Añadir referencia a PanelGestionPlaylist
+	private PanelBuscar panelBuscar; // Añadir referencia a PanelBuscar
 
 	public VentanaPrincipal() {
 
@@ -91,6 +93,8 @@ public class VentanaPrincipal extends JFrame {
 		panelMisPlaylist = new PanelMisPlaylist(); // Crear instancia de PanelMisPlaylist
 		panelRecientes = new PanelRecientes(); // Crear instancia de PanelRecientes
 		panelMasReproducidas = new PanelMasReproducidas(); // Crear instancia de PanelMasReproducidas
+		panelBuscar = new PanelBuscar(); // Crear instancia de PanelBuscar
+		panelGestionPlaylist = new PanelGestionPlaylist(panelBuscar, this); // Crear instancia de PanelGestionPlaylist
 
 		listPlaylists.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -125,11 +129,10 @@ public class VentanaPrincipal extends JFrame {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.insets = new Insets(5, 5, 5, 5);
 
-		panelLateral.add(crearBotonLateral("Buscar", "/umu/tds/icon/lupa.png", new PanelBuscar()), gbc);
+		panelLateral.add(crearBotonLateral("Buscar", "/umu/tds/icon/lupa.png", panelBuscar), gbc);
 
 		gbc.gridy++;
-		panelLateral.add(crearBotonLateral("Gestión Playlists", "/umu/tds/icon/mas.png", new PanelGestionPlaylist()),
-				gbc);
+		panelLateral.add(crearBotonLateral("Gestión Playlists", "/umu/tds/icon/mas.png", panelGestionPlaylist), gbc);
 
 		gbc.gridy++;
 		panelLateral.add(crearBotonLateral("Recientes", "/umu/tds/icon/despertador.png", panelRecientes), gbc); // Pasar
@@ -190,7 +193,7 @@ public class VentanaPrincipal extends JFrame {
 		panelLateral.repaint();
 	}
 
-	private void cargarPlaylistsUsuario() {
+	public void cargarPlaylistsUsuario() {
 		List<Playlist> playlists = appMusic.getAllPlaylists(appMusic.getUsuarioActual().getId());
 		DefaultListModel<String> listModel = new DefaultListModel<>();
 		for (Playlist playlist : playlists) {
@@ -213,7 +216,12 @@ public class VentanaPrincipal extends JFrame {
 		Image image = icon.getImage().getScaledInstance(DIM, DIM, Image.SCALE_SMOOTH);
 		JButton boton = new JButton(texto, new ImageIcon(image));
 		if (panelFuncion != null) {
-			boton.addActionListener(e -> mostrarPanel(panelFuncion));
+			boton.addActionListener(e -> {
+				if (panelFuncion == panelGestionPlaylist) {
+					panelGestionPlaylist.cargarCancionesDeBusqueda(); // Cargar canciones del panel de búsqueda
+				}
+				mostrarPanel(panelFuncion);
+			});
 		}
 		return boton;
 	}

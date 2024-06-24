@@ -3,6 +3,8 @@ package umu.tds.controller;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.table.DefaultTableModel;
+
 import umu.tds.dao.CancionDAO;
 import umu.tds.dao.EstiloMusicalDAO;
 import umu.tds.dao.InterpreteDAO;
@@ -82,6 +84,27 @@ public class AppMusic {
 
 	public List<Cancion> getTopCanciones(int maxResults) {
 		return cancionDAO.getTopCanciones(maxResults);
+	}
+
+	public List<Integer> getSelectedCancionIdsFromTable(DefaultTableModel modeloTabla) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void addPlaylistToUsuario(int id, String titulo, List<Integer> cancionIds) {
+		usuarioDAO.addPlaylistToUsuario(id, titulo, cancionIds);
+	}
+
+	public void updatePlaylist(int id, String nombre, String titulo, List<Integer> cancionIds) {
+		usuarioDAO.updatePlaylist(id, nombre, titulo, cancionIds);
+	}
+
+	public void removePlaylist(int id, String nombre) {
+		usuarioDAO.removePlaylist(id, nombre);
+	}
+
+	public void removeCancionFromPlaylist(int usuarioId, int playlistId, int cancionId) {
+		usuarioDAO.removeCancionFromPlaylist(usuarioId, playlistId, cancionId);
 	}
 
 	private void inicializarAdaptadores() {

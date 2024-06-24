@@ -1,112 +1,107 @@
 package umu.tds.test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import umu.tds.dao.CancionDAO;
 import umu.tds.dao.EstiloMusicalDAO;
 import umu.tds.dao.InterpreteDAO;
+import umu.tds.dao.JPACancionDAO;
+import umu.tds.dao.JPAEstiloMusicalDAO;
+import umu.tds.dao.JPAInterpreteDAO;
+import umu.tds.dao.JPAUsuarioDAO;
 import umu.tds.dao.UsuarioDAO;
-import umu.tds.factory.DAOFactory;
-import umu.tds.model.Usuario;
 import umu.tds.validation.ValidationException;
 
 public class DatabaseInitializer {
 
-	public static void main(String[] args) {
-		// Initialize DAOs
-		DAOFactory daoFactory = DAOFactory.getDAOFactory(DAOFactory.JPA);
-		CancionDAO cancionDAO = daoFactory.getCancionDAO();
-		InterpreteDAO interpreteDAO = daoFactory.getInterpreteDAO();
-		EstiloMusicalDAO estiloMusicalDAO = daoFactory.getEstiloMusicalDAO();
-		UsuarioDAO usuarioDAO = daoFactory.getUsuarioDAO();
+	public static void initialize() {
+		UsuarioDAO usuarioDAO = JPAUsuarioDAO.getInstance();
+		EstiloMusicalDAO estiloMusicalDAO = JPAEstiloMusicalDAO.getInstance();
+		InterpreteDAO interpreteDAO = JPAInterpreteDAO.getInstance();
+		CancionDAO cancionDAO = JPACancionDAO.getInstance();
 
-		// Define styles
-		List<String> estilos = Arrays.asList("Pop", "Rock", "Jazz", "Classical", "Hip-Hop");
-		List<Integer> estiloIds = new ArrayList<>();
+		// Crear usuario admin
+		try {
+			usuarioDAO.addUsuario("admin@example.com", new Date(), "admin1", "admin1", true);
+		} catch (ValidationException e) {
+			e.printStackTrace();
+		}
+		int adminId = usuarioDAO.getUsuarioByUsername("admin1").getId();
+
+		// Crear estilos musicales
+		List<String> estilos = Arrays.asList("Pop", "Rock", "Jazz", "Clasica", "Hip Hop", "Reggae", "Electronica");
 		for (String estilo : estilos) {
-			estiloIds.add(estiloMusicalDAO.addEstiloMusical(estilo));
+			estiloMusicalDAO.addEstiloMusical(estilo);
 		}
 
-		// Define interpreters
-		List<String> interpretes = Arrays.asList("Artist A", "Band B", "Musician C", "Singer D", "Group E");
-		List<Integer> interpreteIds = new ArrayList<>();
-		for (String interprete : interpretes) {
-			interpreteIds.add(interpreteDAO.addInterprete(interprete));
-		}
+		// Crear canciones para cada estilo
+		addCancionesPorEstilo("Pop",
+				Arrays.asList("Michael Jackson - Thriller", "Madonna - Like a Prayer", "Prince - Purple Rain"),
+				cancionDAO, interpreteDAO, estiloMusicalDAO);
+		addCancionesPorEstilo("Rock", Arrays.asList("Led Zeppelin - Stairway to Heaven", "Queen - Bohemian Rhapsody",
+				"The Beatles - Hey Jude"), cancionDAO, interpreteDAO, estiloMusicalDAO);
+		addCancionesPorEstilo("Jazz", Arrays.asList("Miles Davis - So What", "John Coltrane - Giant Steps",
+				"Duke Ellington - Take the 'A' Train"), cancionDAO, interpreteDAO, estiloMusicalDAO);
+		addCancionesPorEstilo("Clasica",
+				Arrays.asList("Beethoven - Symphony No.5", "Mozart - Requiem", "Bach - Toccata and Fugue in D Minor"),
+				cancionDAO, interpreteDAO, estiloMusicalDAO);
+		addCancionesPorEstilo("Hip Hop",
+				Arrays.asList("Tupac - Changes", "Notorious B.I.G. - Juicy", "Eminem - Lose Yourself"), cancionDAO,
+				interpreteDAO, estiloMusicalDAO);
+		addCancionesPorEstilo("Reggae", Arrays.asList("Bob Marley - No Woman No Cry", "Peter Tosh - Legalize It",
+				"Jimmy Cliff - The Harder They Come"), cancionDAO, interpreteDAO, estiloMusicalDAO);
+		addCancionesPorEstilo("Electronica",
+				Arrays.asList("Daft Punk - One More Time", "The Chemical Brothers - Galvanize", "Deadmau5 - Strobe"),
+				cancionDAO, interpreteDAO, estiloMusicalDAO);
 
-		// Define songs
-		List<String> canciones = Arrays.asList("Song 1", "Track 2", "Melody 3", "Tune 4", "Harmony 5", "Rhythm 6");
-		List<Integer> cancionIds = new ArrayList<>();
-		for (String cancion : canciones) {
-			cancionIds.add(cancionDAO.addCancion(cancion, interpretes, estilos.get(0)));
-		}
+		// Crear playlists para el usuario admin
+		addPlaylist(adminId, "Favoritas", Arrays.asList("Michael Jackson - Thriller",
+				"Led Zeppelin - Stairway to Heaven", "Miles Davis - So What"), cancionDAO, usuarioDAO);
+		addPlaylist(adminId, "Workout Mix",
+				Arrays.asList("Daft Punk - One More Time", "Eminem - Lose Yourself", "Queen - Bohemian Rhapsody"),
+				cancionDAO, usuarioDAO);
+		addPlaylist(adminId, "Clásicas",
+				Arrays.asList("Beethoven - Symphony No.5", "Mozart - Requiem", "Bach - Toccata and Fugue in D Minor"),
+				cancionDAO, usuarioDAO);
+	}
 
-		// Define users
-		List<Usuario> usuarios = new ArrayList<>();
-		Usuario user1 = new Usuario();
-		user1.setEmail("user1@example.com");
-		user1.setFechaNac(new Date());
-		user1.setUser("user1");
-		user1.setPassword("password1");
-		user1.setPremium(true);
-		usuarios.add(user1);
+	private static void addCancionesPorEstilo(String estilo, List<String> canciones, CancionDAO cancionDAO,
+			InterpreteDAO interpreteDAO, EstiloMusicalDAO estiloMusicalDAO) {
+		for (String cancionData : canciones) {
+			String[] parts = cancionData.split(" - ");
+			String interpreteNombre = parts[0];
+			String titulo = parts[1];
 
-		Usuario user2 = new Usuario();
-		user2.setEmail("user2@example.com");
-		user2.setFechaNac(new Date());
-		user2.setUser("user2");
-		user2.setPassword("password2");
-		user2.setPremium(false);
-		usuarios.add(user2);
-
-		Usuario user3 = new Usuario();
-		user3.setEmail("user3@example.com");
-		user3.setFechaNac(new Date());
-		user3.setUser("user3");
-		user3.setPassword("password3");
-		user3.setPremium(true);
-		usuarios.add(user3);
-
-		Usuario user4 = new Usuario();
-		user4.setEmail("user4@example.com");
-		user4.setFechaNac(new Date());
-		user4.setUser("user4");
-		user4.setPassword("password4");
-		user4.setPremium(false);
-		usuarios.add(user4);
-
-		Usuario user5 = new Usuario();
-		user5.setEmail("user5@example.com");
-		user5.setFechaNac(new Date());
-		user5.setUser("user5");
-		user5.setPassword("password5");
-		user5.setPremium(true);
-		usuarios.add(user5);
-
-		List<Integer> usuarioIds = new ArrayList<>();
-		for (Usuario usuario : usuarios) {
-			try {
-				if (usuarioDAO.addUsuario(usuario.getEmail(), usuario.getFechaNac(), usuario.getUser(),
-						usuario.getPassword(), usuario.isPremium())) {
-					usuarioIds.add(usuario.getId());
-				}
-			} catch (ValidationException e) {
-				System.err.println("Validation error: " + e.getMessage());
+			// Añadir intérprete si no existe
+			if (interpreteDAO.getAllInterpretes().stream().noneMatch(i -> i.getNombre().equals(interpreteNombre))) {
+				interpreteDAO.addInterprete(interpreteNombre);
 			}
-		}
 
-		// Create playlists for each user
-		for (int usuarioId : usuarioIds) {
-			List<Integer> sublist1 = cancionIds.subList(0, 3);
-			List<Integer> sublist2 = cancionIds.subList(3, cancionIds.size());
-			usuarioDAO.addPlaylistToUsuario(usuarioId+1, "Favorites", sublist1);
-			usuarioDAO.addPlaylistToUsuario(usuarioId+1, "Chill Vibes", sublist2);
-			usuarioDAO.addPlaylistToUsuario(usuarioId+1, "Workout Mix", cancionIds);
+			// Añadir canción
+			cancionDAO.addCancion(titulo, Arrays.asList(interpreteNombre), estilo);
 		}
+	}
 
-		System.out.println("Initial database load completed successfully!");
+	private static void addPlaylist(int usuarioId, String nombrePlaylist, List<String> canciones, CancionDAO cancionDAO,
+			UsuarioDAO usuarioDAO) {
+		List<Integer> cancionIds = canciones.stream().map(titulo -> {
+			String[] parts = titulo.split(" - ");
+			String interpreteNombre = parts[0];
+			String tituloCancion = parts[1];
+			return cancionDAO.getAllCanciones().stream()
+					.filter(c -> c.getTitulo().equals(tituloCancion)
+							&& c.getInterpretes().get(0).getNombre().equals(interpreteNombre))
+					.findFirst().get().getId();
+		}).collect(Collectors.toList());
+
+		usuarioDAO.addPlaylistToUsuario(usuarioId, nombrePlaylist, cancionIds);
+	}
+
+	public static void main(String[] args) {
+		initialize();
+		System.out.println("Database initialized successfully.");
 	}
 }

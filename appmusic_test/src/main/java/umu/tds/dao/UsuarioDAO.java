@@ -39,4 +39,6 @@ public interface UsuarioDAO {
 	Usuario getUsuarioByUsername(String usuario);
 
 	List<Cancion> getCancionesRecientes(int usuarioId);
+
+	void removeCancionFromPlaylist(int usuarioId, int playlistId, int cancionId);
 }

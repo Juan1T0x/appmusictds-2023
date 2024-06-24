@@ -131,8 +131,12 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 		Playlist playlist = new Playlist();
 		playlist.setNombre(nombrePlaylist);
 
-		List<Cancion> canciones = em.createQuery("SELECT c FROM Cancion c WHERE c.id IN :ids", Cancion.class)
-				.setParameter("ids", cancionIds).getResultList();
+		// Manejar el caso donde cancionIds está vacío
+		List<Cancion> canciones = new ArrayList<>();
+		if (!cancionIds.isEmpty()) {
+			canciones = em.createQuery("SELECT c FROM Cancion c WHERE c.id IN :ids", Cancion.class)
+					.setParameter("ids", cancionIds).getResultList();
+		}
 		playlist.setCanciones(canciones);
 
 		usuario.getPlaylists().add(playlist);
@@ -327,4 +331,38 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 		}
 		return recientes;
 	}
+
+	@Override
+	public void removeCancionFromPlaylist(int usuarioId, int playlistId, int cancionId) {
+		EntityManager em = JPAUtil.getEntityManager();
+		em.getTransaction().begin();
+
+		Usuario usuario = em.find(Usuario.class, usuarioId);
+		if (usuario == null) {
+			em.getTransaction().rollback();
+			em.close();
+			throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
+		}
+
+		Playlist playlist = em.find(Playlist.class, playlistId);
+		if (playlist == null) {
+			em.getTransaction().rollback();
+			em.close();
+			throw new IllegalArgumentException("Playlist no encontrada con ID: " + playlistId);
+		}
+
+		Cancion cancion = em.find(Cancion.class, cancionId);
+		if (cancion == null) {
+			em.getTransaction().rollback();
+			em.close();
+			throw new IllegalArgumentException("Canción no encontrada con ID: " + cancionId);
+		}
+
+		playlist.getCanciones().remove(cancion);
+		em.merge(playlist);
+
+		em.getTransaction().commit();
+		em.close();
+	}
+
 }
