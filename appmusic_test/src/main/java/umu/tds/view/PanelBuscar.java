@@ -1,0 +1,133 @@
+package umu.tds.view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import umu.tds.controller.AppMusic;
+import umu.tds.model.Cancion;
+import umu.tds.model.EstiloMusical;
+
+public class PanelBuscar extends JPanel {
+
+	private JTextField textBuscarInterprete;
+	private JTextField textBuscarTitulo;
+	private JTable tableResultadoBusqueda;
+	private JComboBox<String> estilosDropdown;
+
+	private AppMusic appMusic;
+
+	public PanelBuscar() {
+
+		appMusic = AppMusic.getInstance();
+
+		setLayout(new BorderLayout());
+
+		JPanel panelBuscar = new JPanel();
+		panelBuscar.setBorder(new TitledBorder(null, "Buscar", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelBuscar.setLayout(new GridLayout(3, 2, 5, 5));
+		add(panelBuscar, BorderLayout.NORTH);
+
+		textBuscarInterprete = new JTextField();
+		textBuscarInterprete.setForeground(new Color(192, 192, 192));
+		textBuscarInterprete.setText("intérprete");
+		panelBuscar.add(textBuscarInterprete);
+		textBuscarInterprete.setColumns(10);
+
+		textBuscarTitulo = new JTextField();
+		textBuscarTitulo.setForeground(new Color(192, 192, 192));
+		textBuscarTitulo.setText("título");
+		panelBuscar.add(textBuscarTitulo);
+		textBuscarTitulo.setColumns(10);
+
+		JCheckBox chckbxFavoritas = new JCheckBox("favoritas");
+		panelBuscar.add(chckbxFavoritas);
+
+		estilosDropdown = new JComboBox<>();
+		cargarEstilos();
+		estilosDropdown.setToolTipText("estilo");
+		panelBuscar.add(estilosDropdown);
+
+		JButton btnHacerBusqueda = new JButton("Buscar");
+		btnHacerBusqueda.addActionListener(e -> buscar());
+		panelBuscar.add(btnHacerBusqueda);
+
+		JButton btnLimpiarBusqueda = new JButton("Limpiar búsqueda");
+		btnLimpiarBusqueda.addActionListener(e -> mostrarTodasLasCanciones());
+		panelBuscar.add(btnLimpiarBusqueda);
+
+		JPanel panelResultadoBusqueda = new JPanel(new BorderLayout());
+		tableResultadoBusqueda = new JTable();
+		tableResultadoBusqueda.setModel(
+				new DefaultTableModel(new Object[][] {}, new Object[] { "Título", "Intérprete", "Estilo", "" }) {
+					@Override
+					public Class<?> getColumnClass(int columnIndex) {
+						return columnIndex == 3 ? Boolean.class : Object.class;
+					}
+				});
+
+		// Añadir RowSorter a la tabla para habilitar la ordenación
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableResultadoBusqueda.getModel());
+		tableResultadoBusqueda.setRowSorter(sorter);
+
+		panelResultadoBusqueda.add(new JScrollPane(tableResultadoBusqueda), BorderLayout.CENTER);
+		add(panelResultadoBusqueda, BorderLayout.CENTER);
+
+		// Mostrar todas las canciones por defecto
+		mostrarTodasLasCanciones();
+	}
+
+	private void cargarEstilos() {
+		List<EstiloMusical> estilos = appMusic.getAllEstilosMusicales();
+		for (EstiloMusical estilo : estilos) {
+			estilosDropdown.addItem(estilo.getNombre());
+		}
+	}
+
+	private void buscar() {
+		String tituloBusqueda = textBuscarTitulo.getText().trim().toLowerCase();
+		String interpreteBusqueda = textBuscarInterprete.getText().trim().toLowerCase();
+		EstiloMusical estiloSeleccionado = (EstiloMusical) estilosDropdown.getSelectedItem();
+
+		List<Cancion> canciones = appMusic.getAllCanciones().stream()
+				.filter(c -> tituloBusqueda.isEmpty() || c.getTitulo().toLowerCase().contains(tituloBusqueda))
+				.filter(c -> interpreteBusqueda.isEmpty() || c.getInterpretes().stream()
+						.anyMatch(i -> i.getNombre().toLowerCase().contains(interpreteBusqueda)))
+				.filter(c -> estiloSeleccionado == null
+						|| c.getEstilo().getNombre().equals(estiloSeleccionado.getNombre()))
+				.collect(Collectors.toList());
+
+		actualizarTabla(canciones);
+	}
+
+	private void mostrarTodasLasCanciones() {
+		List<Cancion> canciones = appMusic.getAllCanciones();
+		actualizarTabla(canciones);
+	}
+
+	private void actualizarTabla(List<Cancion> canciones) {
+		DefaultTableModel model = (DefaultTableModel) tableResultadoBusqueda.getModel();
+		model.setRowCount(0); // Clear existing rows
+
+		for (Cancion cancion : canciones) {
+			String titulo = cancion.getTitulo();
+			String interprete = cancion.getInterpretes().isEmpty() ? "" : cancion.getInterpretes().get(0).getNombre();
+			String estilo = cancion.getEstilo().getNombre();
+			model.addRow(new Object[] { titulo, interprete, estilo, false });
+		}
+	}
+}
