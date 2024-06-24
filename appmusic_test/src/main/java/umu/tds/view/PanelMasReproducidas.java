@@ -1,19 +1,31 @@
 package umu.tds.view;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import umu.tds.controller.AppMusic;
+import umu.tds.model.Cancion;
+
 public class PanelMasReproducidas extends JPanel {
 
 	private JTable tableMasReproducidas;
 	private DefaultTableModel modeloTabla;
+	private JComboBox<Integer> comboBoxNumeroCanciones;
+
+	private AppMusic appMusic;
 
 	public PanelMasReproducidas() {
+		appMusic = AppMusic.getInstance(); // Obtener instancia del controlador
+
 		setLayout(new BorderLayout(0, 0)); // No gaps between components
 
 		// Configuración de la tabla de canciones más reproducidas
@@ -31,15 +43,36 @@ public class PanelMasReproducidas extends JPanel {
 				TitledBorder.TOP, null, null));
 		panelMasReproducidas.add(new JScrollPane(tableMasReproducidas), BorderLayout.CENTER);
 
+		// Configuración de la JComboBox
+		comboBoxNumeroCanciones = new JComboBox<>(new Integer[] { 5, 10, 20 });
+		comboBoxNumeroCanciones.setSelectedIndex(0);
+		comboBoxNumeroCanciones.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cargarCancionesMasReproducidas();
+			}
+		});
+
+		JPanel panelOpciones = new JPanel();
+		panelOpciones.add(comboBoxNumeroCanciones);
+		panelMasReproducidas.add(panelOpciones, BorderLayout.NORTH);
+
 		add(panelMasReproducidas, BorderLayout.CENTER);
 
 		cargarCancionesMasReproducidas();
 	}
 
 	private void cargarCancionesMasReproducidas() {
-		// Simular carga de canciones más reproducidas
+		int numCanciones = (Integer) comboBoxNumeroCanciones.getSelectedItem();
+		List<Cancion> canciones = appMusic.getTopCanciones(numCanciones);
+
 		modeloTabla.setRowCount(0);
-		modeloTabla.addRow(new Object[] { "Título 1", "Intérprete 1", "Estilo 1", 10 });
-		modeloTabla.addRow(new Object[] { "Título 2", "Intérprete 2", "Estilo 2", 8 });
+		for (Cancion cancion : canciones) {
+			String titulo = cancion.getTitulo();
+			String interprete = cancion.getInterpretes().isEmpty() ? "" : cancion.getInterpretes().get(0).getNombre();
+			String estilo = cancion.getEstilo().getNombre();
+			long reproducciones = cancion.getNumReproducciones();
+			modeloTabla.addRow(new Object[] { titulo, interprete, estilo, reproducciones });
+		}
 	}
 }

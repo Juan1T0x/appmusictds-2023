@@ -9,7 +9,8 @@ import umu.tds.model.Usuario;
 import umu.tds.validation.ValidationException;
 
 public interface UsuarioDAO {
-	boolean addUsuario(String email, Date fechaNac, String user, String password, boolean premium) throws ValidationException;
+	boolean addUsuario(String email, Date fechaNac, String user, String password, boolean premium)
+			throws ValidationException;
 
 	void updateUsuario(int id, String email, Date fechaNac, String user, String password, boolean premium);
 
@@ -24,9 +25,9 @@ public interface UsuarioDAO {
 	void updatePlaylist(int usuarioId, String nombrePlaylist, String nuevoNombre, List<Integer> cancionIds);
 
 	void removePlaylist(int usuarioId, String nombrePlaylist);
-	
+
 	List<Cancion> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist);
-	
+
 	List<Playlist> getAllPlaylists(int usuarioId);
 
 	void addCancionReciente(int usuarioId, int cancionId);
@@ -36,4 +37,6 @@ public interface UsuarioDAO {
 	boolean login(String user, String password);
 
 	Usuario getUsuarioByUsername(String usuario);
+
+	List<Cancion> getCancionesRecientes(int usuarioId);
 }

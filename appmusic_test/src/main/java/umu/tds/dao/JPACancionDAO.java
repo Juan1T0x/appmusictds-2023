@@ -132,6 +132,17 @@ public class JPACancionDAO implements CancionDAO {
 		return canciones;
 	}
 
+	@Override
+	public List<Cancion> getTopCanciones(int maxResults) {
+		EntityManager em = JPAUtil.getEntityManager();
+		TypedQuery<Cancion> query = em.createQuery("SELECT c FROM Cancion c ORDER BY c.numReproducciones DESC",
+				Cancion.class);
+		query.setMaxResults(maxResults);
+		List<Cancion> topCanciones = query.getResultList();
+		em.close();
+		return topCanciones;
+	}
+
 	private EstiloMusical findOrCreateEstiloMusical(EntityManager em, String nombre) {
 		TypedQuery<EstiloMusical> query = em.createQuery("SELECT e FROM EstiloMusical e WHERE e.nombre = :nombre",
 				EstiloMusical.class);

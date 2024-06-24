@@ -1,6 +1,7 @@
 package umu.tds.view;
 
 import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -8,12 +9,19 @@ import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import umu.tds.controller.AppMusic;
+import umu.tds.model.Cancion;
+
 public class PanelRecientes extends JPanel {
 
 	private JTable tableRecientes;
 	private DefaultTableModel modeloTabla;
 
+	private AppMusic appMusic;
+
 	public PanelRecientes() {
+		appMusic = AppMusic.getInstance(); // Inicializar appMusic
+
 		setLayout(new BorderLayout(0, 0)); // No gaps between components
 
 		// Configuración de la tabla de canciones recientes
@@ -37,9 +45,13 @@ public class PanelRecientes extends JPanel {
 	}
 
 	private void cargarCancionesRecientes() {
-		// Simular carga de canciones recientes
 		modeloTabla.setRowCount(0);
-		modeloTabla.addRow(new Object[] { "Título 1", "Intérprete 1", "Estilo 1", false });
-		modeloTabla.addRow(new Object[] { "Título 2", "Intérprete 2", "Estilo 2", false });
+		List<Cancion> cancionesRecientes = appMusic.getCancionesRecientes(appMusic.getUsuarioActual().getId());
+		for (Cancion cancion : cancionesRecientes) {
+			String titulo = cancion.getTitulo();
+			String interprete = cancion.getInterpretes().isEmpty() ? "" : cancion.getInterpretes().get(0).getNombre();
+			String estilo = cancion.getEstilo().getNombre();
+			modeloTabla.addRow(new Object[] { titulo, interprete, estilo, false });
+		}
 	}
 }

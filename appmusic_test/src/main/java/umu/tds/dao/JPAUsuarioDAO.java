@@ -311,4 +311,20 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 			em.close();
 		}
 	}
+
+	@Override
+	public List<Cancion> getCancionesRecientes(int usuarioId) {
+		EntityManager em = JPAUtil.getEntityManager();
+		List<Cancion> recientes = null;
+		try {
+			Usuario usuario = em.find(Usuario.class, usuarioId);
+			if (usuario != null) {
+				recientes = usuario.getCancionesRecientes();
+				recientes.size(); // Force initialization
+			}
+		} finally {
+			em.close();
+		}
+		return recientes;
+	}
 }

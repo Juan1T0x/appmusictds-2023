@@ -41,6 +41,8 @@ public class VentanaPrincipal extends JFrame {
 	private AppMusic appMusic;
 
 	private PanelMisPlaylist panelMisPlaylist; // Añadir referencia a PanelMisPlaylist
+	private PanelRecientes panelRecientes; // Añadir referencia a PanelRecientes
+	private PanelMasReproducidas panelMasReproducidas; // Añadir referencia a PanelMasReproducidas
 
 	public VentanaPrincipal() {
 
@@ -87,6 +89,8 @@ public class VentanaPrincipal extends JFrame {
 
 		listPlaylists = new JList<>();
 		panelMisPlaylist = new PanelMisPlaylist(); // Crear instancia de PanelMisPlaylist
+		panelRecientes = new PanelRecientes(); // Crear instancia de PanelRecientes
+		panelMasReproducidas = new PanelMasReproducidas(); // Crear instancia de PanelMasReproducidas
 
 		listPlaylists.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -128,7 +132,8 @@ public class VentanaPrincipal extends JFrame {
 				gbc);
 
 		gbc.gridy++;
-		panelLateral.add(crearBotonLateral("Recientes", "/umu/tds/icon/despertador.png", new PanelRecientes()), gbc);
+		panelLateral.add(crearBotonLateral("Recientes", "/umu/tds/icon/despertador.png", panelRecientes), gbc); // Pasar
+																												// PanelRecientes
 
 		gbc.gridy++;
 		gbc.anchor = GridBagConstraints.NORTH;
@@ -138,9 +143,8 @@ public class VentanaPrincipal extends JFrame {
 
 		if (isPremiumUser) {
 			gbc.gridy++;
-			panelLateral.add(
-					crearBotonLateral("Más Reproducidas", "/umu/tds/icon/estrella.png", new PanelMasReproducidas()),
-					gbc);
+			panelLateral.add(crearBotonLateral("Más Reproducidas", "/umu/tds/icon/estrella.png", panelMasReproducidas),
+					gbc); // Pasar PanelMasReproducidas
 
 			gbc.gridy++;
 			JButton btnGenerarPDF = crearBotonLateral("Generar PDF", "/umu/tds/icon/pdf.png", null);

@@ -15,4 +15,6 @@ public interface CancionDAO {
 	Cancion getCancion(int id);
 
 	List<Cancion> getAllCanciones();
+
+	List<Cancion> getTopCanciones(int maxResults);
 }

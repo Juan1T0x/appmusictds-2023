@@ -76,6 +76,14 @@ public class AppMusic {
 		return usuarioDAO.getAllCancionesFromPlaylist(usuarioId, nombrePlaylist);
 	}
 
+	public List<Cancion> getCancionesRecientes(int usuarioId) {
+		return usuarioDAO.getCancionesRecientes(usuarioId);
+	}
+
+	public List<Cancion> getTopCanciones(int maxResults) {
+		return cancionDAO.getTopCanciones(maxResults);
+	}
+
 	private void inicializarAdaptadores() {
 		DAOFactory daoFactory = DAOFactory.getDAOFactory(DAOFactory.JPA);
 		cancionDAO = daoFactory.getCancionDAO();
