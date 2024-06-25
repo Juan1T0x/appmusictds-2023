@@ -106,6 +106,11 @@ public class AppMusic {
 	public void removeCancionFromPlaylist(int usuarioId, int playlistId, int cancionId) {
 		usuarioDAO.removeCancionFromPlaylist(usuarioId, playlistId, cancionId);
 	}
+	
+	public List<Cancion> queryListaCanciones(String titulo, String interprete, String estilo) {
+		return cancionDAO.queryListaCanciones(titulo, interprete, estilo);
+	}
+
 
 	private void inicializarAdaptadores() {
 		DAOFactory daoFactory = DAOFactory.getDAOFactory(DAOFactory.JPA);
@@ -114,5 +119,6 @@ public class AppMusic {
 		estiloMusicalDAO = daoFactory.getEstiloMusicalDAO();
 		usuarioDAO = daoFactory.getUsuarioDAO();
 	}
+
 
 }

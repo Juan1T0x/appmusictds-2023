@@ -142,6 +142,65 @@ public class JPACancionDAO implements CancionDAO {
 		em.close();
 		return topCanciones;
 	}
+	
+	@Override
+	public List<Cancion> queryListaCanciones(String titulo, String interpretes, String estilo) {
+	    EntityManager em = JPAUtil.getEntityManager();
+	    StringBuilder sQuery = new StringBuilder("SELECT c FROM Cancion c ");
+	    
+	    // Añadir los JOINs necesarios
+	    if (!estilo.isEmpty()) {
+	        sQuery.append("JOIN c.estilo e ");
+	    }
+	    if (!interpretes.isEmpty()) {
+	        sQuery.append("JOIN c.interpretes i ");
+	    }
+	    
+	    // Añadir las condiciones WHERE
+	    boolean whereAnadido = false;
+
+	    if (!titulo.isEmpty()) {
+	        sQuery.append("WHERE c.titulo LIKE :titulo ");
+	        whereAnadido = true;
+	    }
+
+	    if (!estilo.isEmpty()) {
+	        if (!whereAnadido) {
+	            sQuery.append("WHERE e.nombre = :estilo ");
+	            whereAnadido = true;
+	        } else {
+	            sQuery.append("AND e.nombre = :estilo ");
+	        }
+	    }
+
+	    if (!interpretes.isEmpty()) {
+	        if (!whereAnadido) {
+	            sQuery.append("WHERE i.nombre LIKE :interpretes ");
+	            whereAnadido = true;
+	        } else {
+	            sQuery.append("AND i.nombre LIKE :interpretes ");
+	        }
+	    }
+
+	    TypedQuery<Cancion> query = em.createQuery(sQuery.toString(), Cancion.class);
+
+	    // Establecer parámetros
+	    if (!titulo.isEmpty()) {
+	        query.setParameter("titulo", "%" + titulo + "%");
+	    }
+	    if (!estilo.isEmpty()) {
+	        query.setParameter("estilo", estilo);
+	    }
+	    if (!interpretes.isEmpty()) {
+	        query.setParameter("interpretes", "%" + interpretes + "%");
+	    }
+	    
+	    List<Cancion> canciones = query.getResultList();
+	    em.close();
+	    return canciones;
+	}
+
+
 
 	private EstiloMusical findOrCreateEstiloMusical(EntityManager em, String nombre) {
 		TypedQuery<EstiloMusical> query = em.createQuery("SELECT e FROM EstiloMusical e WHERE e.nombre = :nombre",
@@ -174,4 +233,6 @@ public class JPACancionDAO implements CancionDAO {
 			return resultados.get(0);
 		}
 	}
+
+	
 }

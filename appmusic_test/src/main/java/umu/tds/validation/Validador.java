@@ -2,6 +2,6 @@ package umu.tds.validation;
 
 // Patro strategy
 
-public interface ValidadorUsuario {
+public interface Validador {
     void validar(String valor) throws ValidationException;
 }

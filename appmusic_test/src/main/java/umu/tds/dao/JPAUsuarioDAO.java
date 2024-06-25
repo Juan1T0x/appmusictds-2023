@@ -15,7 +15,7 @@ import umu.tds.model.Usuario;
 import umu.tds.validation.ValidadorEmail;
 import umu.tds.validation.ValidadorFechaNac;
 import umu.tds.validation.ValidadorPassword;
-import umu.tds.validation.ValidadorUsuario;
+import umu.tds.validation.Validador;
 import umu.tds.validation.ValidationException;
 
 public class JPAUsuarioDAO implements UsuarioDAO {
@@ -40,9 +40,9 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 		String fechaNacStr = dateFormat.format(fechaNac);
 
 		// Validar datos del usuario
-		ValidadorUsuario validadorEmail = new ValidadorEmail();
-		ValidadorUsuario validadorFechaNac = new ValidadorFechaNac();
-		ValidadorUsuario validadorPassword = new ValidadorPassword();
+		Validador validadorEmail = new ValidadorEmail();
+		Validador validadorFechaNac = new ValidadorFechaNac();
+		Validador validadorPassword = new ValidadorPassword();
 
 		validadorEmail.validar(email);
 		validadorFechaNac.validar(fechaNacStr);

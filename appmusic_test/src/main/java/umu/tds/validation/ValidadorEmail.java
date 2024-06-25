@@ -2,7 +2,7 @@ package umu.tds.validation;
 
 import java.util.regex.Pattern;
 
-public class ValidadorEmail implements ValidadorUsuario {
+public class ValidadorEmail implements Validador {
 
 	private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 

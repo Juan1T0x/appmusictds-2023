@@ -3,7 +3,7 @@ package umu.tds.validation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ValidadorFechaNac implements ValidadorUsuario {
+public class ValidadorFechaNac implements Validador {
 
 	@Override
 	public void validar(String fechaNacStr) throws ValidationException {
