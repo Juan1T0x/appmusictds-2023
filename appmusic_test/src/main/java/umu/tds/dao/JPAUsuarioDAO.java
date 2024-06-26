@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -12,10 +13,10 @@ import javax.persistence.TypedQuery;
 import umu.tds.model.Cancion;
 import umu.tds.model.Playlist;
 import umu.tds.model.Usuario;
+import umu.tds.validation.Validador;
 import umu.tds.validation.ValidadorEmail;
 import umu.tds.validation.ValidadorFechaNac;
 import umu.tds.validation.ValidadorPassword;
-import umu.tds.validation.Validador;
 import umu.tds.validation.ValidationException;
 
 public class JPAUsuarioDAO implements UsuarioDAO {
@@ -59,9 +60,13 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
-		em.persist(usuario);
-		em.getTransaction().commit();
-		em.close();
+		try {
+
+			em.persist(usuario);
+			em.getTransaction().commit();
+		} finally {
+			em.close();
+		}
 
 		return true;
 	}
@@ -70,33 +75,40 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 	public void updateUsuario(int id, String email, Date fechaNac, String user, String password, boolean premium) {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
+		try {
 
-		Usuario usuario = em.find(Usuario.class, id);
-		if (usuario != null) {
-			usuario.setEmail(email);
-			usuario.setFechaNac(fechaNac);
-			usuario.setUser(user);
-			usuario.setPassword(password);
-			usuario.setPremium(premium);
-			em.merge(usuario);
+			Usuario usuario = em.find(Usuario.class, id);
+			if (usuario != null) {
+				usuario.setEmail(email);
+				usuario.setFechaNac(fechaNac);
+				usuario.setUser(user);
+				usuario.setPassword(password);
+				usuario.setPremium(premium);
+				em.merge(usuario);
+			}
+
+			em.getTransaction().commit();
+		} finally {
+			em.close();
 		}
-
-		em.getTransaction().commit();
-		em.close();
 	}
 
 	@Override
 	public void removeUsuario(int id) {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
+		try {
 
-		Usuario usuario = em.find(Usuario.class, id);
-		if (usuario != null) {
-			em.remove(usuario);
+			Usuario usuario = em.find(Usuario.class, id);
+			if (usuario != null) {
+				em.remove(usuario);
+			}
+
+			em.getTransaction().commit();
+		} finally {
+
+			em.close();
 		}
-
-		em.getTransaction().commit();
-		em.close();
 	}
 
 	@Override
@@ -154,30 +166,38 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
 
-		Usuario usuario = em.find(Usuario.class, usuarioId);
-		if (usuario == null) {
-			em.getTransaction().rollback();
+		try {
+			Usuario usuario = em.find(Usuario.class, usuarioId);
+			if (usuario == null) {
+				em.getTransaction().rollback();
+				throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
+			}
+
+			Optional<Playlist> optionalPlaylist = usuario.getPlaylists().stream()
+					.filter(p -> p.getNombre().equals(nombrePlaylist)).findFirst();
+
+			Playlist playlist = optionalPlaylist.orElseThrow(() -> {
+				em.getTransaction().rollback();
+				// Lanzar excepción que se captura un poco más abajo
+				return new IllegalArgumentException("Playlist no encontrada con nombre: " + nombrePlaylist);
+			});
+
+			List<Cancion> canciones = em.createQuery("SELECT c FROM Cancion c WHERE c.id IN :ids", Cancion.class)
+					.setParameter("ids", cancionIds).getResultList();
+
+			playlist.setNombre(nuevoNombre);
+			playlist.setCanciones(canciones);
+
+			em.merge(playlist);
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+			throw e;
+		} finally {
 			em.close();
-			throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
 		}
-
-		Playlist playlist = usuario.getPlaylists().stream().filter(p -> p.getNombre().equals(nombrePlaylist))
-				.findFirst().orElse(null);
-
-		if (playlist == null) {
-			em.getTransaction().rollback();
-			em.close();
-			throw new IllegalArgumentException("Playlist no encontrada con nombre: " + nombrePlaylist);
-		}
-
-		List<Cancion> canciones = em.createQuery("SELECT c FROM Cancion c WHERE c.id IN :ids", Cancion.class)
-				.setParameter("ids", cancionIds).getResultList();
-		playlist.setNombre(nuevoNombre);
-		playlist.setCanciones(canciones);
-
-		em.merge(playlist);
-		em.getTransaction().commit();
-		em.close();
 	}
 
 	@Override
@@ -185,65 +205,78 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
 
-		Usuario usuario = em.find(Usuario.class, usuarioId);
-		if (usuario == null) {
-			em.getTransaction().rollback();
+		try {
+			Usuario usuario = em.find(Usuario.class, usuarioId);
+			if (usuario == null) {
+				throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
+			}
+
+			Optional<Playlist> optionalPlaylist = usuario.getPlaylists().stream()
+					.filter(p -> p.getNombre().equals(nombrePlaylist)).findFirst();
+
+			if (optionalPlaylist.isPresent()) {
+				Playlist playlist = optionalPlaylist.get();
+				usuario.getPlaylists().remove(playlist);
+				// Asegurar que EntityManager controla la playlist
+				em.remove(em.contains(playlist) ? playlist : em.merge(playlist));
+				em.merge(usuario);
+			} else {
+				throw new IllegalArgumentException("Playlist no encontrada con nombre: " + nombrePlaylist);
+			}
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+			throw e;
+		} finally {
 			em.close();
-			throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
 		}
-
-		Playlist playlist = usuario.getPlaylists().stream().filter(p -> p.getNombre().equals(nombrePlaylist))
-				.findFirst().orElse(null);
-
-		if (playlist != null) {
-			usuario.getPlaylists().remove(playlist);
-			em.remove(playlist);
-			em.merge(usuario);
-		} else {
-			em.getTransaction().rollback();
-			em.close();
-			throw new IllegalArgumentException("Playlist no encontrada con nombre: " + nombrePlaylist);
-		}
-
-		em.getTransaction().commit();
-		em.close();
 	}
+
 
 	@Override
 	public void addCancionReciente(int usuarioId, int cancionId) {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
+		try {
+			Usuario usuario = em.find(Usuario.class, usuarioId);
+			Cancion cancion = em.find(Cancion.class, cancionId);
 
-		Usuario usuario = em.find(Usuario.class, usuarioId);
-		Cancion cancion = em.find(Cancion.class, cancionId);
-
-		if (usuario != null && cancion != null) {
-			List<Cancion> recientes = usuario.getCancionesRecientes();
-			if (recientes.size() >= Usuario.MAX) {
-				recientes.remove(0);
+			if (usuario != null && cancion != null) {
+				List<Cancion> recientes = usuario.getCancionesRecientes();
+				if (recientes.size() >= Usuario.MAX) {
+					recientes.remove(0);
+				}
+				recientes.add(cancion);
+				usuario.setCancionesRecientes(recientes);
+				em.merge(usuario);
 			}
-			recientes.add(cancion);
-			usuario.setCancionesRecientes(recientes);
-			em.merge(usuario);
-		}
 
-		em.getTransaction().commit();
-		em.close();
+			em.getTransaction().commit();
+		} finally {
+			em.close();
+		}
 	}
 
 	@Override
 	public void clearCancionesRecientes(int usuarioId) {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
+		try {
 
-		Usuario usuario = em.find(Usuario.class, usuarioId);
-		if (usuario != null) {
-			usuario.getCancionesRecientes().clear();
-			em.merge(usuario);
+			Usuario usuario = em.find(Usuario.class, usuarioId);
+			if (usuario != null) {
+				usuario.getCancionesRecientes().clear();
+				em.merge(usuario);
+			}
+
+			em.getTransaction().commit();
+		} finally {
+
+			em.close();
 		}
-
-		em.getTransaction().commit();
-		em.close();
 	}
 
 	@Override
@@ -259,13 +292,13 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 	}
 
 	@Override
-	public Usuario getUsuarioByUsername(String username) {
+	public Optional<Usuario> getUsuarioByUsername(String username) {
 		EntityManager em = JPAUtil.getEntityManager();
 		TypedQuery<Usuario> query = em.createQuery("SELECT u FROM Usuario u WHERE u.user = :username", Usuario.class);
 		query.setParameter("username", username);
-		Usuario usuario = null;
+		Optional<Usuario> usuario = Optional.empty();
 		try {
-			usuario = query.getSingleResult();
+			usuario = Optional.of(query.getSingleResult());
 		} catch (NoResultException e) {
 			// Manejar el caso en el que no se encuentra el usuario
 		} finally {
@@ -275,16 +308,17 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 	}
 
 	@Override
-	public List<Playlist> getAllPlaylists(int usuarioId) {
+	public Optional<List<Playlist>> getAllPlaylists(int usuarioId) {
 		EntityManager em = JPAUtil.getEntityManager();
-		List<Playlist> playlists = null;
+		Optional<List<Playlist>> playlists = Optional.empty();
 		try {
 			// Retrieve the user by ID
 			Usuario usuario = em.find(Usuario.class, usuarioId);
 			if (usuario != null) {
 				// Initialize the playlists collection to avoid lazy loading issues
-				playlists = usuario.getPlaylists();
-				playlists.size(); // Force initialization
+				List<Playlist> playListUsuario = usuario.getPlaylists();
+				playListUsuario.size(); // Force initialization
+				playlists = Optional.of(playListUsuario);
 			}
 		} finally {
 			em.close();
@@ -293,7 +327,7 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 	}
 
 	@Override
-	public List<Cancion> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist) {
+	public Optional<List<Cancion>> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist) {
 		EntityManager em = JPAUtil.getEntityManager();
 		try {
 			TypedQuery<Playlist> query = em.createQuery(
@@ -303,14 +337,14 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 			query.setParameter("usuarioId", usuarioId);
 			List<Playlist> playlists = query.getResultList();
 			if (playlists.isEmpty()) {
-				return null;
+				return Optional.empty();
 			}
 			// Esto asegura que todos los intérpretes estén cargados
 			playlists.get(0).getCanciones().forEach(c -> c.getInterpretes().size());
-			return playlists.get(0).getCanciones();
+			return Optional.of(playlists.get(0).getCanciones());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return Optional.empty();
 		} finally {
 			em.close();
 		}
@@ -337,32 +371,37 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
 
-		Usuario usuario = em.find(Usuario.class, usuarioId);
-		if (usuario == null) {
-			em.getTransaction().rollback();
+		try {
+			Usuario usuario = em.find(Usuario.class, usuarioId);
+			if (usuario == null) {
+				throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
+			}
+
+			Playlist playlist = em.find(Playlist.class, playlistId);
+			if (playlist == null) {
+				throw new IllegalArgumentException("Playlist no encontrada con ID: " + playlistId);
+			}
+
+			Cancion cancion = em.find(Cancion.class, cancionId);
+			if (cancion == null) {
+				throw new IllegalArgumentException("Canción no encontrada con ID: " + cancionId);
+			}
+
+			if (!playlist.getCanciones().remove(cancion)) {
+				throw new IllegalArgumentException("La canción no está en la playlist con ID: " + playlistId);
+			}
+
+			em.merge(playlist);
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+			throw e;
+		} finally {
 			em.close();
-			throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
 		}
-
-		Playlist playlist = em.find(Playlist.class, playlistId);
-		if (playlist == null) {
-			em.getTransaction().rollback();
-			em.close();
-			throw new IllegalArgumentException("Playlist no encontrada con ID: " + playlistId);
-		}
-
-		Cancion cancion = em.find(Cancion.class, cancionId);
-		if (cancion == null) {
-			em.getTransaction().rollback();
-			em.close();
-			throw new IllegalArgumentException("Canción no encontrada con ID: " + cancionId);
-		}
-
-		playlist.getCanciones().remove(cancion);
-		em.merge(playlist);
-
-		em.getTransaction().commit();
-		em.close();
 	}
+
 
 }

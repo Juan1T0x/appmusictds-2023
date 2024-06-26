@@ -29,7 +29,7 @@ public class DatabaseInitializer {
 		} catch (ValidationException e) {
 			e.printStackTrace();
 		}
-		int adminId = usuarioDAO.getUsuarioByUsername("admin1").getId();
+		int adminId = usuarioDAO.getUsuarioByUsername("admin1").get().getId();
 
 		// Crear estilos musicales
 		List<String> estilos = Arrays.asList("Pop", "Rock", "Jazz", "Clasica", "Hip Hop", "Reggae", "Electronica");

@@ -2,6 +2,7 @@ package umu.tds.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -53,7 +54,7 @@ public class AppMusic {
 	public boolean login(String usuario, String password) {
 		boolean autenticado = usuarioDAO.login(usuario, password);
 		if (autenticado) {
-			usuarioActual = usuarioDAO.getUsuarioByUsername(usuario); // Obtener usuario autenticado
+			usuarioActual = usuarioDAO.getUsuarioByUsername(usuario).get(); // Obtener usuario autenticado
 		}
 		return autenticado;
 	}
@@ -70,11 +71,11 @@ public class AppMusic {
 		return estiloMusicalDAO.getAllEstilosMusicales();
 	}
 
-	public List<Playlist> getAllPlaylists(int usuarioId) {
+	public Optional<List<Playlist>> getAllPlaylists(int usuarioId) {
 		return usuarioDAO.getAllPlaylists(usuarioId);
 	}
 
-	public List<Cancion> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist) {
+	public Optional<List<Cancion>> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist) {
 		return usuarioDAO.getAllCancionesFromPlaylist(usuarioId, nombrePlaylist);
 	}
 

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -59,14 +60,15 @@ public class PanelMisPlaylist extends JPanel {
 		add(btnEliminarCancion, BorderLayout.SOUTH);
 	}
 
-	public void setPlaylist(Playlist playlist) {
-		this.currentPlaylist = playlist;
-		cargarCancionesDePlaylist(playlist);
+	public void setPlaylist(Optional<Playlist> playlist) {
+		if (playlist.isPresent()) {
+			this.currentPlaylist = playlist.get();
+			cargarCancionesDePlaylist(this.currentPlaylist);
+		}
 	}
 
 	private void cargarCancionesDePlaylist(Playlist playlist) {
 		modeloTabla.setRowCount(0); // Clear the table before loading new data
-		if (playlist != null) {
 			List<Cancion> canciones = appMusic.getAllCancionesFromPlaylist(appMusic.getUsuarioActual().getId(),
 					playlist.getNombre());
 			if (canciones != null) {
@@ -78,7 +80,7 @@ public class PanelMisPlaylist extends JPanel {
 					modeloTabla.addRow(new Object[] { titulo, interprete, estilo, false });
 				}
 			}
-		}
+
 	}
 
 	private void handleEliminarCancion() {
@@ -102,10 +104,15 @@ public class PanelMisPlaylist extends JPanel {
 				.boxed().collect(Collectors.toList());
 	}
 
-	private Cancion getCancionFromTable(int rowIndex) {
+	private Optional<Cancion> getCancionFromTable(int rowIndex) {
 		String tituloCancion = (String) modeloTabla.getValueAt(rowIndex, 0);
-		List<Cancion> canciones = appMusic.getAllCancionesFromPlaylist(appMusic.getUsuarioActual().getId(),
+		Optional<List<Cancion>> canciones = appMusic.getAllCancionesFromPlaylist(appMusic.getUsuarioActual().getId(),
 				currentPlaylist.getNombre());
-		return canciones.stream().filter(c -> c.getTitulo().equals(tituloCancion)).findFirst().orElse(null);
+
+		// Check if the Optional contains a list, then filter and find the first
+		// matching Cancion
+		return canciones.flatMap(cancionList -> cancionList.stream()
+				.filter(c -> c.getTitulo().equals(tituloCancion))
+				.findFirst());
 	}
 }

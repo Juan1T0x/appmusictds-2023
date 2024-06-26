@@ -2,6 +2,7 @@ package umu.tds.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import umu.tds.model.Cancion;
 import umu.tds.model.Playlist;
@@ -26,9 +27,9 @@ public interface UsuarioDAO {
 
 	void removePlaylist(int usuarioId, String nombrePlaylist);
 
-	List<Cancion> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist);
+	Optional<List<Cancion>> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist);
 
-	List<Playlist> getAllPlaylists(int usuarioId);
+	Optional<List<Playlist>> getAllPlaylists(int usuarioId);
 
 	void addCancionReciente(int usuarioId, int cancionId);
 
@@ -36,7 +37,7 @@ public interface UsuarioDAO {
 
 	boolean login(String user, String password);
 
-	Usuario getUsuarioByUsername(String usuario);
+	Optional<Usuario> getUsuarioByUsername(String usuario);
 
 	List<Cancion> getCancionesRecientes(int usuarioId);
 
