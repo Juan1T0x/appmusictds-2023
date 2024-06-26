@@ -2,6 +2,7 @@ package umu.tds.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -11,6 +12,8 @@ import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,6 +27,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import umu.tds.controller.AppMusic;
+import umu.tds.descuento.Descuento;
+import umu.tds.descuento.DescuentoFactory;
 import umu.tds.model.Playlist;
 
 public class VentanaPrincipal extends JFrame {
@@ -112,7 +117,7 @@ public class VentanaPrincipal extends JFrame {
 			}
 		});
 
-		agregarBotonesLaterales(panelLateral);
+		actualizarBotonesPanelLateral();
 
 		PanelReproductor panelReproductor = new PanelReproductor(this);
 		contentPane.add(panelReproductor, BorderLayout.SOUTH);
@@ -120,7 +125,7 @@ public class VentanaPrincipal extends JFrame {
 		panelContenido.setVisible(false);
 	}
 
-	private void agregarBotonesLaterales(JPanel panelLateral) {
+	private void actualizarBotonesPanelLateral() {
 		panelLateral.removeAll(); // Clear existing buttons
 
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -235,8 +240,78 @@ public class VentanaPrincipal extends JFrame {
 	}
 
 	private void handlePremium() {
-		isPremiumUser = !isPremiumUser; // Cambiar el estado de usuario premium
-		agregarBotonesLaterales(panelLateral); // Recargar los botones laterales
+		// Crear la ventana emergente
+		JDialog dialog = new JDialog(this, "Suscripción a Premium", true);
+		dialog.setSize(350, 250);
+		dialog.setLocationRelativeTo(this);
+		dialog.setLayout(new BorderLayout());
+
+		// Añadir un desplegable (JComboBox)
+		String[] premiumFeatures = { "Por defecto", "Descuento Fijo", "Descuento Jóvenes" };
+		JComboBox<String> comboBox = new JComboBox<>(premiumFeatures);
+		dialog.add(comboBox, BorderLayout.NORTH);
+
+		// Añadir un panel para la etiqueta
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout());
+
+		// Añadir una etiqueta
+		JLabel label = new JLabel("Seleccione una opción de descuento");
+		panel.add(label);
+
+		// Añadir una etiqueta para mostrar el precio con descuento
+		JLabel priceLabel = new JLabel("Precio con descuento: ");
+		panel.add(priceLabel);
+
+		// Añadir el panel al JDialog
+		dialog.add(panel, BorderLayout.CENTER);
+
+		// Añadir un panel para los botones adicionales
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout());
+
+		// Añadir el botón "Pagar"
+		JButton pagarButton = new JButton("Pagar");
+		buttonPanel.add(pagarButton);
+
+		// Añadir el botón "Cancelar"
+		JButton cancelarButton = new JButton("Cancelar");
+		buttonPanel.add(cancelarButton);
+
+		// Añadir el panel de botones al JDialog
+		dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+		// Crear un contenedor para el descuento seleccionado
+		final Descuento[] descuento = { DescuentoFactory.getDescuento("") };
+
+		// Añadir ActionListener al JComboBox para actualizar el texto de la etiqueta y
+		// el descuento
+		comboBox.addActionListener(e -> {
+			String selected = (String) comboBox.getSelectedItem();
+			descuento[0] = DescuentoFactory.getDescuento(selected);
+			label.setText(descuento[0].getDescripcion());
+
+			// Calcular y mostrar el precio con descuento
+			double precioConDescuento = descuento[0].aplicarDescuento();
+			priceLabel.setText(String.format("Precio con descuento: %.2f€", precioConDescuento));
+		});
+
+		// Añadir ActionListener al botón de "Cancelar"
+		cancelarButton.addActionListener(e -> {
+			isPremiumUser = false;
+			actualizarBotonesPanelLateral(); // Recargar los botones laterales
+			dialog.dispose();
+		});
+
+		// Añadir ActionListener al botón de "Pagar"
+		pagarButton.addActionListener(e -> {
+			isPremiumUser = true;
+			actualizarBotonesPanelLateral(); // Recargar los botones laterales
+			dialog.dispose();
+		});
+
+		// Mostrar la ventana emergente
+		dialog.setVisible(true);
 	}
 
 	private void handleLogout() {
