@@ -7,19 +7,30 @@ import javax.persistence.TypedQuery;
 
 import umu.tds.model.Interprete;
 
+/**
+ * Implementación de la interfaz InterpreteDAO utilizando JPA.
+ * Proporciona métodos para agregar, actualizar, eliminar y consultar intérpretes en la base de datos.
+ * 
+ * @version 1.0
+ */
 public class JPAInterpreteDAO implements InterpreteDAO {
 
-	private static JPAInterpreteDAO instance;
+    private static JPAInterpreteDAO instance;
 
-	private JPAInterpreteDAO() {
-	}
+    private JPAInterpreteDAO() {
+    }
 
-	public static JPAInterpreteDAO getInstance() {
-		if (instance == null) {
-			instance = new JPAInterpreteDAO();
-		}
-		return instance;
-	}
+    /**
+     * Obtiene la instancia única de JPAInterpreteDAO (patrón Singleton).
+     * 
+     * @return la instancia de JPAInterpreteDAO.
+     */
+    public static JPAInterpreteDAO getInstance() {
+        if (instance == null) {
+            instance = new JPAInterpreteDAO();
+        }
+        return instance;
+    }
 
 	@Override
 	public int addInterprete(String nombre) {

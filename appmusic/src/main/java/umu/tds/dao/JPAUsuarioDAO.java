@@ -18,6 +18,10 @@ import umu.tds.validation.ValidadorFechaNac;
 import umu.tds.validation.ValidadorPassword;
 import umu.tds.validation.ValidationException;
 
+/**
+ * Implementación del DAO de usuario utilizando JPA.
+ * Proporciona métodos para gestionar usuarios, playlists y canciones recientes.
+ */
 public class JPAUsuarioDAO implements UsuarioDAO {
 
 	private static JPAUsuarioDAO instance;
@@ -25,6 +29,11 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 	private JPAUsuarioDAO() {
 	}
 
+	/**
+	 * Obtiene la instancia singleton del DAO de usuario.
+	 * 
+	 * @return la instancia singleton del DAO de usuario.
+	 */
 	public static JPAUsuarioDAO getInstance() {
 		if (instance == null) {
 			instance = new JPAUsuarioDAO();

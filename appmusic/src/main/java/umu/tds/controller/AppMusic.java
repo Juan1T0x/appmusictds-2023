@@ -52,7 +52,7 @@ public class AppMusic implements ICancionesListener {
 	private static final int BUF_SIZE = 2048;
 	private static final String MP3 = ".mp3";
 	private static final String SEP_INTERPRETE = "-";
-	private static String PATH = new File(".").getAbsolutePath();
+	private static String PATH;
 	private static String PATH_CANCIONES = "src\\main\\resources\\canciones\\";
 
 	private CancionDAO cancionDAO;

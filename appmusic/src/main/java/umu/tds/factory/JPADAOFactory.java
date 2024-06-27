@@ -9,6 +9,10 @@ import umu.tds.dao.JPAInterpreteDAO;
 import umu.tds.dao.JPAUsuarioDAO;
 import umu.tds.dao.UsuarioDAO;
 
+/**
+ * Implementación de la fábrica de DAOs utilizando JPA.
+ * Proporciona métodos para obtener instancias de DAOs específicos.
+ */
 public class JPADAOFactory extends DAOFactory {
 
 	private static JPADAOFactory instance;
@@ -16,6 +20,11 @@ public class JPADAOFactory extends DAOFactory {
 	private JPADAOFactory() {
 	}
 
+	/**
+	 * Obtiene la instancia singleton de la fábrica de DAOs JPA.
+	 * 
+	 * @return la instancia singleton de JPADAOFactory.
+	 */
 	public static JPADAOFactory getInstance() {
 		if (instance == null) {
 			instance = new JPADAOFactory();

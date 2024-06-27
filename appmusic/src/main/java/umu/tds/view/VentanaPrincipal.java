@@ -361,22 +361,6 @@ public class VentanaPrincipal extends JFrame {
 		ventanaLogin.mostrarVentana();
 	}
 
-	/*
-	 * private void handleGenerarPDF() { JFileChooser fileChooser = new
-	 * JFileChooser(); fileChooser.setCurrentDirectory(new java.io.File("."));
-	 * fileChooser.setDialogTitle("Selecciona un directorio");
-	 * fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); int
-	 * userSelection = fileChooser.showSaveDialog(this); if (userSelection ==
-	 * JFileChooser.APPROVE_OPTION) {
-	 * 
-	 * String filePath = fileChooser.getSelectedFile().getAbsolutePath() +
-	 * File.separator; System.out.println(filePath); try {
-	 * appMusic.crearPDF(filePath); } catch (FileNotFoundException |
-	 * DocumentException e) { JOptionPane.showMessageDialog(this,
-	 * "Error al generar el PDF: " + e.getMessage(), "Error",
-	 * JOptionPane.ERROR_MESSAGE); } } }
-	 */
-
 	private void handleGenerarPDF() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new java.io.File("."));
