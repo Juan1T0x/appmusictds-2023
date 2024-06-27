@@ -312,6 +312,7 @@ public class AppMusic implements ICancionesListener {
 		cancionActual = playlistActual.getCanciones().get(indicePlaylist);
 		cancionDAO.aumentarReproduccion(cancionActual.getId());
 		player.play("play", cancionActual);
+		this.addCancionReciente(usuarioActual.getId(), cancionActual.getId());
 	}
 
 	public void pause() {
@@ -369,5 +370,9 @@ public class AppMusic implements ICancionesListener {
 
 	public void seek(Duration seekTime) {
 		player.seek(seekTime);
+	}
+
+	public void addCancionReciente(int usuarioId, int cancionId) {
+		usuarioDAO.addCancionReciente(usuarioId, cancionId);
 	}
 }

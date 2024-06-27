@@ -265,6 +265,11 @@ public class VentanaPrincipal extends JFrame {
 					Playlist playlist = panelBuscar.crearPlaylistDesdeCancionesMostradas();
 					appMusic.setPlaylist(playlist);
 				}
+				if (panelFuncion == panelRecientes) {
+					panelRecientes.cargarCancionesRecientes(); // Recargar canciones recientes
+					Playlist playlist = panelRecientes.crearPlaylistDesdeCancionesRecientes();
+					appMusic.setPlaylist(playlist);
+				}
 				mostrarPanel(panelFuncion);
 			});
 		}
@@ -356,6 +361,7 @@ public class VentanaPrincipal extends JFrame {
 	}
 
 	private void handleLogout() {
+		appMusic.stop();
 		dispose();
 		VentanaLogin ventanaLogin = new VentanaLogin();
 		ventanaLogin.mostrarVentana();

@@ -228,12 +228,14 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 
 		if (usuario != null && cancion != null) {
 			List<Cancion> recientes = usuario.getCancionesRecientes();
-			if (recientes.size() >= Usuario.MAX) {
-				recientes.remove(0);
+			if (!recientes.contains(cancion)) {
+				if (recientes.size() >= Usuario.MAX) {
+					recientes.remove(0);
+				}
+				recientes.add(cancion);
+				usuario.setCancionesRecientes(recientes);
+				em.merge(usuario);
 			}
-			recientes.add(cancion);
-			usuario.setCancionesRecientes(recientes);
-			em.merge(usuario);
 		}
 
 		em.getTransaction().commit();
