@@ -1,8 +1,14 @@
 package umu.tds.controller;
 
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +22,9 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import tds.CargadorCanciones.CancionesEvent;
+import tds.CargadorCanciones.CargadorCanciones;
+import tds.CargadorCanciones.ICancionesListener;
 import umu.tds.dao.CancionDAO;
 import umu.tds.dao.EstiloMusicalDAO;
 import umu.tds.dao.InterpreteDAO;
@@ -30,20 +39,24 @@ import umu.tds.model.Playlist;
 import umu.tds.model.Usuario;
 import umu.tds.validation.ValidationException;
 
-public class AppMusic {
+public class AppMusic implements ICancionesListener {
 
 	private static AppMusic instance = null;
+	private static String PATH_CANCIONES = new File(".").getAbsolutePath();
 
 	private CancionDAO cancionDAO;
 	private InterpreteDAO interpreteDAO;
 	private EstiloMusicalDAO estiloMusicalDAO;
 	private UsuarioDAO usuarioDAO;
+	private CargadorCanciones cargadorCanciones;
 
 	private Usuario usuarioActual;
 
 	private AppMusic() {
 
 		inicializarAdaptadores();
+		cargadorCanciones = new CargadorCanciones();
+		cargadorCanciones.addCancionesListener(this);
 
 	}
 
@@ -185,6 +198,74 @@ public class AppMusic {
 
 	public Descuento getDescuento(String s) {
 		return DescuentoFactory.getDescuento(s);
+	}
+
+
+	public void cargarCanciones(String path) {
+		cargadorCanciones.setArchivoCanciones(path);
+	}
+
+	@Override
+	public void enteradoCambioRuta(CancionesEvent evento) {
+		List<tds.CargadorCanciones.Cancion> cs = evento.getListaCanciones().getCancion();
+		for (tds.CargadorCanciones.Cancion c : cs) {
+			String tituloCanciones = c.getTitulo();
+			String interpreteCanciones = c.getInterprete();
+			String estiloCanciones = c.getEstilo();
+			String urlPath = c.getURL();
+			try {
+
+				String path = descargarCancion(urlPath, interpreteCanciones, estiloCanciones, tituloCanciones);
+
+				List<String> interpretes = Arrays.asList(interpreteCanciones.split("-"));
+
+				cancionDAO.addCancion(c.getTitulo(), interpretes, estiloCanciones, path, 0);
+			} catch (Exception e) {
+				 e.printStackTrace();
+				continue;
+			} 
+		}
+
+	}
+
+	private String descargarCancion(String urlPath, String interprete, String estilo, String titulo)
+			throws Exception {
+		URL url = new URL(urlPath);
+		URLConnection uc = url.openConnection();
+
+		InputStream is = new BufferedInputStream(uc.getInputStream());
+
+		StringBuilder pathCancion = new StringBuilder(PATH_CANCIONES.substring(0, PATH_CANCIONES.length() - 1));
+
+		pathCancion.append("src\\main\\resources\\canciones\\");
+
+		pathCancion.append(estilo + File.separator);
+
+		crearDirectorio(pathCancion.toString());
+
+		pathCancion.append(interprete + "-");
+		pathCancion.append(titulo + ".mp3");
+
+		FileOutputStream fos = new FileOutputStream(pathCancion.toString());
+
+		byte[] buffer = new byte[2048];
+
+		int bytesLeidos;
+
+		while ((bytesLeidos = is.read(buffer)) != -1)
+			fos.write(buffer, 0, bytesLeidos);
+
+		fos.close();
+		is.close();
+		
+		return pathCancion.toString();
+
+	}
+
+	private void crearDirectorio(String path) {
+		File directorio = new File(path);
+		if (!directorio.exists())
+			directorio.mkdirs();
 	}
 
 }

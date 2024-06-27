@@ -28,6 +28,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.itextpdf.text.DocumentException;
 
@@ -147,7 +148,10 @@ public class VentanaPrincipal extends JFrame {
 		panelLateral.add(crearBotonLateral("Recientes", "/umu/tds/icon/despertador.png", panelRecientes), gbc); // Pasar
 																												// PanelRecientes
 		gbc.gridy++;
-		panelLateral.add(crearBotonLateral("Cargar Canciones", "/umu/tds/icon/mas.png", panelGestionPlaylist), gbc);
+		JButton btnCargarCanciones = crearBotonLateral("Cargar Canciones", "/umu/tds/icon/mas.png",
+				panelGestionPlaylist);
+		panelLateral.add(btnCargarCanciones, gbc);
+		btnCargarCanciones.addActionListener(e -> handleCargarCanciones());
 
 		gbc.gridy++;
 		gbc.anchor = GridBagConstraints.NORTH;
@@ -334,11 +338,13 @@ public class VentanaPrincipal extends JFrame {
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		int userSelection = fileChooser.showSaveDialog(this);
 		if (userSelection == JFileChooser.APPROVE_OPTION) {
+
 			String filePath = fileChooser.getSelectedFile().getAbsolutePath() + File.separator ;
+			System.out.println(filePath);
 			try {
 				appMusic.crearPDF(filePath);
 			} catch (FileNotFoundException | DocumentException e) {
-				JOptionPane.showMessageDialog(this, "Error al generar el PDF: " + e.getMessage(), "Error",
+				JOptionPane.showMessageDialog(this, "Error al generar el asdfasdf PDF: " + e.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -347,5 +353,21 @@ public class VentanaPrincipal extends JFrame {
 	// Método para actualizar la canción actual
 	public void actualizarCancionActual(String cancion) {
 		lblCancionActual.setText(cancion);
+	}
+
+	private void handleCargarCanciones() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new java.io.File("."));
+		fileChooser.setDialogTitle("Selecciona archivo de canciones");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		
+		fileChooser.setFileFilter(new FileNameExtensionFilter("Archivos XML", "xml"));
+
+		int userSelection = fileChooser.showSaveDialog(this);
+
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+			String path = fileChooser.getSelectedFile().getAbsolutePath();
+			appMusic.cargarCanciones(path);
+		}
 	}
 }

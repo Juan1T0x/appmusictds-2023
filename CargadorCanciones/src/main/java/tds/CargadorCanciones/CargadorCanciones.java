@@ -29,6 +29,9 @@ public class CargadorCanciones implements Serializable, IBuscadorCanciones {
 		this.ruta = newRuta;
 		if (oldRuta.equals(newRuta))
 			return;
+		System.out.println("+++++++++++++++++++++++++++++++++++++++++");
+		System.out.println(this.ruta);
+		System.out.println("+++++++++++++++++++++++++++++++++++++++++");
 		try {
 			this.archivoCanciones = MapperCancionesXMLtoJava.cargarCanciones(this.ruta);
 		} catch (URISyntaxException e) {
