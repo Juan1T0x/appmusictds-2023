@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -32,8 +33,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.itextpdf.text.DocumentException;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import umu.tds.controller.AppMusic;
 import umu.tds.descuento.Descuento;
+import umu.tds.model.Cancion;
 import umu.tds.model.Playlist;
 
 public class VentanaPrincipal extends JFrame {
@@ -49,6 +53,7 @@ public class VentanaPrincipal extends JFrame {
 	private JButton btnModoReproduccion; // Botón de modo de reproducción
 
 	private AppMusic appMusic;
+	private MediaPlayer mediaPlayer;
 
 	private PanelMisPlaylist panelMisPlaylist; // Añadir referencia a PanelMisPlaylist
 	private PanelRecientes panelRecientes; // Añadir referencia a PanelRecientes
@@ -117,6 +122,23 @@ public class VentanaPrincipal extends JFrame {
 						panelMisPlaylist.setPlaylist(appMusic.getAllPlaylists(appMusic.getUsuarioActual().getId())
 								.stream().filter(pl -> pl.getNombre().equals(playlistName)).findFirst().orElse(null));
 						mostrarPanel(panelMisPlaylist); // Mostrar PanelMisPlaylist
+					}
+				}
+			}
+		});
+
+		listPlaylists.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent evt) {
+				if (evt.getClickCount() == 2) {
+					String playlistName = listPlaylists.getSelectedValue();
+					if (playlistName != null) {
+						Playlist playlist = appMusic.getAllPlaylists(appMusic.getUsuarioActual().getId()).stream()
+								.filter(pl -> pl.getNombre().equals(playlistName)).findFirst().orElse(null);
+						if (playlist != null && !playlist.getCanciones().isEmpty()) {
+							Cancion firstCancion = playlist.getCanciones().get(0);
+							reproducirCancion(firstCancion);
+						}
 					}
 				}
 			}
@@ -392,6 +414,26 @@ public class VentanaPrincipal extends JFrame {
 		if (userSelection == JFileChooser.APPROVE_OPTION) {
 			String path = fileChooser.getSelectedFile().getAbsolutePath();
 			appMusic.cargarCanciones(path);
+		}
+	}
+
+	// Método para reproducir canción
+	public void reproducirCancion(Cancion cancion) {
+		try {
+			if (mediaPlayer != null) {
+				mediaPlayer.stop();
+			}
+			URL resourceURL = getClass().getResource(cancion.getUrl());
+			if (resourceURL == null)
+				throw new FileNotFoundException("Fichero canción no encontrado: " + cancion.getUrl());
+			Media hit = new Media(resourceURL.toExternalForm());
+			mediaPlayer = new MediaPlayer(hit);
+			mediaPlayer.play();
+			actualizarCancionActual("Reproduciendo: " + cancion.getTitulo());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error al reproducir la canción: " + ex.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
