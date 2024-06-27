@@ -33,7 +33,6 @@ import com.itextpdf.text.DocumentException;
 
 import umu.tds.controller.AppMusic;
 import umu.tds.descuento.Descuento;
-import umu.tds.descuento.DescuentoFactory;
 import umu.tds.model.Playlist;
 
 public class VentanaPrincipal extends JFrame {
@@ -289,13 +288,14 @@ public class VentanaPrincipal extends JFrame {
 		dialog.add(buttonPanel, BorderLayout.SOUTH);
 
 		// Crear un contenedor para el descuento seleccionado
-		final Descuento[] descuento = { DescuentoFactory.getDescuento("") };
+		final Descuento[] descuento = { appMusic.getDescuento("") };
 
 		// Añadir ActionListener al JComboBox para actualizar el texto de la etiqueta y
 		// el descuento
 		comboBox.addActionListener(e -> {
 			String selected = (String) comboBox.getSelectedItem();
-			descuento[0] = DescuentoFactory.getDescuento(selected);
+			descuento[0] = appMusic.getDescuento(selected);
+
 			label.setText(descuento[0].getDescripcion());
 
 			// Calcular y mostrar el precio con descuento
@@ -343,7 +343,6 @@ public class VentanaPrincipal extends JFrame {
 			}
 		}
 	}
-
 
 	// Método para actualizar la canción actual
 	public void actualizarCancionActual(String cancion) {

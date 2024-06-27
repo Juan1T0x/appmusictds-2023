@@ -16,6 +16,8 @@ import umu.tds.dao.CancionDAO;
 import umu.tds.dao.EstiloMusicalDAO;
 import umu.tds.dao.InterpreteDAO;
 import umu.tds.dao.UsuarioDAO;
+import umu.tds.descuento.Descuento;
+import umu.tds.descuento.DescuentoFactory;
 import umu.tds.factory.DAOFactory;
 import umu.tds.model.Cancion;
 import umu.tds.model.EstiloMusical;
@@ -149,6 +151,10 @@ public class AppMusic {
 		} finally {
 			documentoPDF.close();
 		}
+	}
+
+	public Descuento getDescuento(String s) {
+		return DescuentoFactory.getDescuento(s);
 	}
 
 
