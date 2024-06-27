@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<canciones xmlns="http://www.tds.es/canciones" xmlns:xs="http://www.w3.org/2001/XMLSchemainstance"
+xs:schemaLocation="http://www.tds.es/canciones canciones.xsd">
+<cancion titulo="La Vie en rose">
+<URL><![CDATA[https://ia801605.us.archive.org/16/items/78_la-vie-en-rose-slowchante_edith-piaf-louiguy-edith-piaf-chansons-parisiennesguy_gbia0000684a/La%20Vie%20En%20Rose%20%28Slow%20Chante%29%20-
+%20Edith%20Piaf-restored.mp3]]></URL>
+<estilo>Cabaret</estilo>
+<interprete>Edith Piaf</interprete>
+</cancion>
+<cancion titulo="In the Court of the Crimson King">
+<URL><![CDATA[https://ia800102.us.archive.org/7/items/cd_in-the-court-of-thecrimson-king_king-crimson/disc1/05.%20King%20Crimson%20-
+%20The%20Court%20of%20the%20Crimson%20King%20%28including%20The%20Return%20of%
+20the%20Fire%20Witch%20and%20The%20Dance%20of%20the%20Puppets%29_sample.mp3]]>
+</URL>
+<estilo>Rock-sinfonico</estilo>
+<interprete>King Crimson </interprete>
+</cancion>
+<cancion titulo="Confessing that I love you">
+<URL><![CDATA[https://ia600108.us.archive.org/13/items/78_west-endblues_louis-armstrong-and-his-orchestra-spencer-williams_gbia0031327/06%20-
+%20Confessin%27%20That%20I%20Love%20You%20-
+%20Louis%20Armstrong%20And%20His%20Orchcestra.mp3]]></URL>
+<estilo>Jazz</estilo>
+<interprete>Louis Armstrong</interprete>
+</cancion>
+<cancion titulo="Moonlight Serenade">
+<URL><![CDATA[https://ia800803.us.archive.org/24/items/78_moonlightserenade_glenn-miller-and-his-orchestra-glennmiller_gbia0015151b/Moonlight%20Serenade%20-
+%20Glenn%20Miller%20and%20his%20Orchestra-restored.mp3]]></URL>
+<estilo>Ballad</estilo>
+<interprete>Glen Miller</interprete>
+</cancion>
+</canciones>

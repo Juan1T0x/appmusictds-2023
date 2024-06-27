@@ -1,10 +1,10 @@
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\Cancion.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\bean\FileSongListener.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\Programa.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\ObjectFactory.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\bean\FileSongEvent.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\MapperCancionesXMLtoJava.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\package-info.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\prueba\TestPlay.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\bean\SongLoader.java
-C:\asignaturas\TDS\workspaces\appmusic-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\Canciones.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\CancionesEvent.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\ObjectFactory.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\ICancionesListener.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\Programa.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\package-info.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\Cancion.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\Canciones.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\MapperCancionesXMLtoJava.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\CargadorCanciones.java
+C:\Users\Salvador Candel\eclipse-workspace\tds\appmusictds-2023\CargadorCanciones\src\main\java\tds\CargadorCanciones\IBuscadorCanciones.java
