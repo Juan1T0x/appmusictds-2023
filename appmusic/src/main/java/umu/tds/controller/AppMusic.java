@@ -1,229 +1,190 @@
 package umu.tds.controller;
 
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.swing.table.DefaultTableModel;
 
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import umu.tds.dao.CancionDAO;
+import umu.tds.dao.EstiloMusicalDAO;
+import umu.tds.dao.InterpreteDAO;
+import umu.tds.dao.UsuarioDAO;
+import umu.tds.descuento.Descuento;
+import umu.tds.descuento.DescuentoFactory;
+import umu.tds.factory.DAOFactory;
+import umu.tds.model.Cancion;
 import umu.tds.model.EstiloMusical;
-import umu.tds.model.cancion.Cancion;
-import umu.tds.model.cancion.RepositorioCanciones;
-import umu.tds.model.interprete.Interprete;
-import umu.tds.model.interprete.RepositorioInterpretes;
-import umu.tds.model.usuario.RepositorioUsuarios;
-import umu.tds.model.usuario.Usuario;
-import umu.tds.persistencia.AdaptadorCancionDAO;
-import umu.tds.persistencia.AdaptadorInterpreteDAO;
-import umu.tds.persistencia.AdaptadorUsuarioDAO;
-import umu.tds.persistencia.DAOException;
-import umu.tds.persistencia.FactoriaDAO;
-import umu.tds.validation.BirthdateValidator;
-import umu.tds.validation.EmailValidator;
-import umu.tds.validation.Validator;
+import umu.tds.model.Interprete;
+import umu.tds.model.Playlist;
+import umu.tds.model.Usuario;
+import umu.tds.validation.ValidationException;
 
 public class AppMusic {
 
-	private static AppMusic unicaInstancia = null;
+	private static AppMusic instance = null;
 
-	private AdaptadorCancionDAO adaptadorCancion;
-	private AdaptadorInterpreteDAO adaptadorInterprete;
-	private AdaptadorUsuarioDAO adaptadorUsuario;
+	private CancionDAO cancionDAO;
+	private InterpreteDAO interpreteDAO;
+	private EstiloMusicalDAO estiloMusicalDAO;
+	private UsuarioDAO usuarioDAO;
 
-	private RepositorioCanciones repoCanciones;
-	private RepositorioInterpretes repoInterpretes;
-	private RepositorioUsuarios repoUsuarios;
-
-	private Validator<String> emailValidator;
-	private Validator<Date> birthdateValidator;
+	private Usuario usuarioActual;
 
 	private AppMusic() {
+
 		inicializarAdaptadores();
-		inicializarRepositorios();
-		inicializarValidadores();
+
 	}
 
-	public static AppMusic getUnicaInstancia() {
-		if (unicaInstancia == null)
-			unicaInstancia = new AppMusic();
-		return unicaInstancia;
+	public static AppMusic getInstance() {
+		if (instance == null)
+			instance = new AppMusic();
+		return instance;
 	}
 
-	// Métodos para gestionar canciones
-
-	public Cancion registrarCancion(String mp3, EstiloMusical estilo) {
-		String titulo = getTituloMp3(mp3);
-		List<Interprete> interpretes = getInterpretes(getInterpretesMp3(mp3));
-		Cancion cancion = new Cancion(titulo, interpretes, estilo);
-
-		adaptadorCancion.registrarCancion(cancion);
-		repoCanciones.addCancion(cancion);
-		return cancion;
-	}
-
-	public void modificarCancion(Cancion cancion) {
-		adaptadorCancion.modificarCancion(cancion);
-		repoCanciones.addCancion(cancion); // Update the repository as well
-	}
-
-	public void borrarCancion(Cancion cancion) {
-		adaptadorCancion.borrarCancion(cancion);
-		repoCanciones.getCanciones().removeIf(c -> c.getCodigo() == cancion.getCodigo()); // Remove from repository
-	}
-
-	public List<Cancion> recuperarCanciones() {
-		return repoCanciones.getCanciones();
-	}
-
-	// Métodos para gestionar intérpretes
-
-	public Interprete registrarInterprete(String nombre) {
-		Interprete interprete = new Interprete(nombre);
-		adaptadorInterprete.registrarInterprete(interprete);
-		repoInterpretes.addInterprete(interprete);
-		return interprete;
-	}
-
-	public void modificarInterprete(Interprete interprete) {
-		adaptadorInterprete.modificarInterprete(interprete);
-		repoInterpretes.addInterprete(interprete); // Update the repository as well
-	}
-
-	public void borrarInterprete(Interprete interprete) {
-		adaptadorInterprete.borrarInterprete(interprete);
-		repoInterpretes.getInterpretes().removeIf(i -> i.getCodigo() == interprete.getCodigo()); // Remove from
-																									// repository
-	}
-
-	public List<Interprete> recuperarInterpretes() {
-		return repoInterpretes.getInterpretes();
-	}
-
-	public List<Interprete> getInterpretes() {
-		return recuperarInterpretes();
-	}
-
-	public Optional<Interprete> getInterprete(String nombre) {
-		return getInterpretes().stream().filter(i -> nombre.equals(i.getNombre())).findFirst();
-	}
-
-	public List<Interprete> getInterpretes(List<String> nombres) {
-		List<Interprete> lista = new ArrayList<>();
-		for (String s : nombres) {
-			Optional<Interprete> oInterprete = getInterprete(s);
-			if (!oInterprete.isPresent()) {
-				Interprete interprete = registrarInterprete(s);
-				lista.add(interprete);
-			} else {
-				lista.add(oInterprete.get());
-			}
-		}
-		return lista;
-	}
-
-	// Métodos para gestionar usuarios
-
-	public void registrarUsuario(String email, Date fechaNac, String user, String password, boolean premium) {
-		if (!emailValidator.validate(email)) {
-			throw new IllegalArgumentException("Invalid email format");
-		}
-		if (!birthdateValidator.validate(fechaNac)) {
-			throw new IllegalArgumentException("Invalid birthdate");
-		}
-
-		Usuario usuario = new Usuario(email, fechaNac, user, password, premium);
-		adaptadorUsuario.registrarUsuario(usuario);
-		repoUsuarios.addUsuario(usuario);
-	}
-
-	public void modificarUsuario(Usuario usuario) {
-		Optional<Usuario> existingUser = getUsuario(usuario.getEmail());
-		if (!existingUser.isPresent()) {
-			throw new IllegalArgumentException("Usuario no encontrado: " + usuario.getEmail());
-		}
-		adaptadorUsuario.modificarUsuario(usuario);
-		repoUsuarios.addUsuario(usuario); // Update the repository as well
-	}
-
-	public void borrarUsuario(Usuario usuario) {
-		adaptadorUsuario.borrarUsuario(usuario);
-		repoUsuarios.getUsuarios().removeIf(u -> u.getCodigo() == usuario.getCodigo()); // Remove from repository
-	}
-
-	public List<Usuario> recuperarUsuarios() {
-		return repoUsuarios.getUsuarios();
-	}
-
-	public Optional<Usuario> getUsuario(String email) {
-		return getUsuarios().stream().filter(u -> email.equals(u.getEmail())).findFirst();
-	}
-
-	public List<Usuario> getUsuarios() {
-		return repoUsuarios.getUsuarios();
-	}
-
-	// Métodos de utilidad
-
-	public String getTituloMp3(String mp3) {
-		String patron = "(?<=-)[\\w\\s]+(?=\\.mp3)";
-
-		Pattern regex = Pattern.compile(patron);
-		Matcher matcher = regex.matcher(mp3);
-
-		String titulo = "";
-		if (matcher.find())
-			titulo = matcher.group(0).trim();
-
-		return titulo;
-	}
-
-	public List<String> getInterpretesMp3(String mp3) {
-		String patron = "[\\w\\s]+(?=&)|[\\w\\s]+(?=-)";
-		Pattern reg = Pattern.compile(patron);
-		Matcher matcher = reg.matcher(mp3);
-
-		List<String> lista = new ArrayList<>();
-
-		while (matcher.find())
-			lista.add(matcher.group().trim());
-
-		return lista;
-	}
-
-	public boolean loginConGitHub(String usuario, String password) {
+	public boolean loginConGitHub(String email, String password) {
 		try {
-			GitHub github = new GitHubBuilder().withPassword(usuario, password).build();
-			return github.isCredentialValid();
+			GitHub github = new GitHubBuilder().withPassword(email, password).build();
+			if (github.isCredentialValid()) {
+				List<Usuario> usuarios = usuarioDAO.getAllUsuarios();
+				Usuario usuarioExistente = usuarios.stream().filter(u -> u.getEmail().equalsIgnoreCase(email))
+						.findFirst().orElse(null);
+
+				if (usuarioExistente == null) {
+					// El usuario no existe, registrarlo
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+					Date fechaNac = sdf.parse("1970-01-01");
+					String username = email.split("@")[0];
+					boolean registrado = usuarioDAO.addUsuario(email, fechaNac, username, password, false);
+					if (registrado) {
+						usuarioActual = usuarioDAO.getUsuarioByUsername(username);
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					// El usuario ya existe, hacer login
+					usuarioActual = usuarioExistente;
+					return true;
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 
-	private void inicializarRepositorios() {
-		repoCanciones = RepositorioCanciones.getUnicaInstancia();
-		repoInterpretes = RepositorioInterpretes.getUnicaInstancia();
-		repoUsuarios = RepositorioUsuarios.getUnicaInstancia();
+	public boolean registrarUsuario(String email, Date fechaNac, String user, String password, boolean premium)
+			throws ValidationException {
+		return usuarioDAO.addUsuario(email, fechaNac, user, password, premium);
+
+	}
+
+	public boolean login(String usuario, String password) {
+		boolean autenticado = usuarioDAO.login(usuario, password);
+		if (autenticado) {
+			usuarioActual = usuarioDAO.getUsuarioByUsername(usuario); // Obtener usuario autenticado
+		}
+		return autenticado;
+	}
+
+	public Usuario getUsuarioActual() {
+		return usuarioActual;
+	}
+
+	public List<Cancion> getAllCanciones() {
+		return cancionDAO.getAllCanciones();
+	}
+
+	public List<EstiloMusical> getAllEstilosMusicales() {
+		return estiloMusicalDAO.getAllEstilosMusicales();
+	}
+
+	public List<Playlist> getAllPlaylists(int usuarioId) {
+		return usuarioDAO.getAllPlaylists(usuarioId);
+	}
+
+	public List<Cancion> getAllCancionesFromPlaylist(int usuarioId, String nombrePlaylist) {
+		return usuarioDAO.getAllCancionesFromPlaylist(usuarioId, nombrePlaylist);
+	}
+
+	public List<Cancion> getCancionesRecientes(int usuarioId) {
+		return usuarioDAO.getCancionesRecientes(usuarioId);
+	}
+
+	public List<Cancion> getTopCanciones(int maxResults) {
+		return cancionDAO.getTopCanciones(maxResults);
+	}
+
+	public List<Integer> getSelectedCancionIdsFromTable(DefaultTableModel modeloTabla) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void addPlaylistToUsuario(int id, String titulo, List<Integer> cancionIds) {
+		usuarioDAO.addPlaylistToUsuario(id, titulo, cancionIds);
+	}
+
+	public void updatePlaylist(int id, String nombre, String titulo, List<Integer> cancionIds) {
+		usuarioDAO.updatePlaylist(id, nombre, titulo, cancionIds);
+	}
+
+	public void removePlaylist(int id, String nombre) {
+		usuarioDAO.removePlaylist(id, nombre);
+	}
+
+	public void removeCancionFromPlaylist(int usuarioId, int playlistId, int cancionId) {
+		usuarioDAO.removeCancionFromPlaylist(usuarioId, playlistId, cancionId);
+	}
+
+	public List<Cancion> queryListaCanciones(String titulo, String interprete, String estilo) {
+		return cancionDAO.queryListaCanciones(titulo, interprete, estilo);
 	}
 
 	private void inicializarAdaptadores() {
-		FactoriaDAO factoria = null;
-		try {
-			factoria = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
-		} catch (DAOException e) {
-			e.printStackTrace();
-		}
-		adaptadorUsuario = factoria.getUsuarioDAO();
-		adaptadorCancion = factoria.getCancionDAO();
-		adaptadorInterprete = factoria.getInterpreteDAO();
+		DAOFactory daoFactory = DAOFactory.getDAOFactory(DAOFactory.JPA);
+		cancionDAO = daoFactory.getCancionDAO();
+		interpreteDAO = daoFactory.getInterpreteDAO();
+		estiloMusicalDAO = daoFactory.getEstiloMusicalDAO();
+		usuarioDAO = daoFactory.getUsuarioDAO();
 	}
 
-	private void inicializarValidadores() {
-		emailValidator = new EmailValidator();
-		birthdateValidator = new BirthdateValidator();
+	public void crearPDF(String filePath) throws FileNotFoundException, DocumentException {
+		Document documentoPDF = new Document();
+		try {
+			PdfWriter.getInstance(documentoPDF, new FileOutputStream(filePath));
+			documentoPDF.open();
+			List<Playlist> plst = getAllPlaylists(usuarioActual.getId());
+
+			for (Playlist p : plst) {
+				documentoPDF.add(new Paragraph(p.getNombre()));
+				for (Cancion c : p.getCanciones()) {
+					StringBuilder linea = new StringBuilder("      " + c.getTitulo() + "      ");
+					for (Interprete i : c.getInterpretes()) {
+						linea.append(i.getNombre()).append("     ");
+					}
+					linea.append(c.getEstilo().getNombre());
+					documentoPDF.add(new Paragraph(linea.toString()));
+				}
+			}
+		} finally {
+			documentoPDF.close();
+		}
 	}
+
+	public Descuento getDescuento(String s) {
+		return DescuentoFactory.getDescuento(s);
+	}
+
 }

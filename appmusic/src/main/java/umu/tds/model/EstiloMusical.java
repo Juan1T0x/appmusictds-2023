@@ -1,12 +1,29 @@
 package umu.tds.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class EstiloMusical {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
 	private String nombre;
 
-	public EstiloMusical(String nombre) {
-		super();
-		this.nombre = nombre;
+	public EstiloMusical() { // POJO
+
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getNombre() {
@@ -19,7 +36,7 @@ public class EstiloMusical {
 
 	@Override
 	public String toString() {
-		return "EstiloMusical [nombre=" + nombre + "]";
+		return "EstiloMusical [id=" + id + ", nombre=" + nombre + "]";
 	}
 
 }

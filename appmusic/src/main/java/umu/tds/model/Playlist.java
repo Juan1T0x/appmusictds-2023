@@ -2,17 +2,34 @@ package umu.tds.model;
 
 import java.util.List;
 
-import umu.tds.model.cancion.Cancion;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
+@Entity
 public class Playlist {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+
 	private String nombre;
+
+	@ManyToMany
 	private List<Cancion> canciones;
 
-	public Playlist(String nombre, List<Cancion> canciones) {
-		super();
-		this.nombre = nombre;
-		this.canciones = canciones;
+	public Playlist() { // POJO
+
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getNombre() {
@@ -33,7 +50,7 @@ public class Playlist {
 
 	@Override
 	public String toString() {
-		return "Playlist [nombre=" + nombre + ", canciones=" + canciones + "]";
+		return "Playlist [id=" + id + ", nombre=" + nombre + ", canciones=" + canciones + "]";
 	}
 
 }
