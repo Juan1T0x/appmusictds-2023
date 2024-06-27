@@ -41,4 +41,6 @@ public interface UsuarioDAO {
 	List<Cancion> getCancionesRecientes(int usuarioId);
 
 	void removeCancionFromPlaylist(int usuarioId, int playlistId, int cancionId);
+
+	void setPremium(int usuarioId, boolean premium);
 }

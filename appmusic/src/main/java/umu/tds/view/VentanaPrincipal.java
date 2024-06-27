@@ -309,14 +309,14 @@ public class VentanaPrincipal extends JFrame {
 
 		// Añadir ActionListener al botón de "Cancelar"
 		cancelarButton.addActionListener(e -> {
-			isPremiumUser = false;
+			isPremiumUser = appMusic.setPremium(appMusic.getUsuarioActual().getId(), false);
 			actualizarBotonesPanelLateral(); // Recargar los botones laterales
 			dialog.dispose();
 		});
 
 		// Añadir ActionListener al botón de "Pagar"
 		pagarButton.addActionListener(e -> {
-			isPremiumUser = true;
+			isPremiumUser = appMusic.setPremium(appMusic.getUsuarioActual().getId(), true);
 			actualizarBotonesPanelLateral(); // Recargar los botones laterales
 			dialog.dispose();
 		});
@@ -331,6 +331,22 @@ public class VentanaPrincipal extends JFrame {
 		ventanaLogin.mostrarVentana();
 	}
 
+	/*
+	 * private void handleGenerarPDF() { JFileChooser fileChooser = new
+	 * JFileChooser(); fileChooser.setCurrentDirectory(new java.io.File("."));
+	 * fileChooser.setDialogTitle("Selecciona un directorio");
+	 * fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); int
+	 * userSelection = fileChooser.showSaveDialog(this); if (userSelection ==
+	 * JFileChooser.APPROVE_OPTION) {
+	 * 
+	 * String filePath = fileChooser.getSelectedFile().getAbsolutePath() +
+	 * File.separator; System.out.println(filePath); try {
+	 * appMusic.crearPDF(filePath); } catch (FileNotFoundException |
+	 * DocumentException e) { JOptionPane.showMessageDialog(this,
+	 * "Error al generar el PDF: " + e.getMessage(), "Error",
+	 * JOptionPane.ERROR_MESSAGE); } } }
+	 */
+
 	private void handleGenerarPDF() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new java.io.File("."));
@@ -338,13 +354,21 @@ public class VentanaPrincipal extends JFrame {
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		int userSelection = fileChooser.showSaveDialog(this);
 		if (userSelection == JFileChooser.APPROVE_OPTION) {
-
-			String filePath = fileChooser.getSelectedFile().getAbsolutePath() + File.separator ;
-			System.out.println(filePath);
-			try {
-				appMusic.crearPDF(filePath);
-			} catch (FileNotFoundException | DocumentException e) {
-				JOptionPane.showMessageDialog(this, "Error al generar el asdfasdf PDF: " + e.getMessage(), "Error",
+			File selectedDir = fileChooser.getSelectedFile();
+			if (selectedDir.isDirectory() && selectedDir.canWrite()) {
+				String filePath = selectedDir.getAbsolutePath() + File.separator + appMusic.getUsuarioActual().getUser()
+						+ ".pdf";
+				System.out.println(filePath);
+				try {
+					AppMusic.getInstance().crearPDF(filePath);
+					JOptionPane.showMessageDialog(this, "PDF generado correctamente en " + filePath, "Éxito",
+							JOptionPane.INFORMATION_MESSAGE);
+				} catch (FileNotFoundException | DocumentException e) {
+					JOptionPane.showMessageDialog(this, "Error al generar el PDF: " + e.getMessage(), "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, "No tienes permisos de escritura en este directorio", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -360,7 +384,7 @@ public class VentanaPrincipal extends JFrame {
 		fileChooser.setCurrentDirectory(new java.io.File("."));
 		fileChooser.setDialogTitle("Selecciona archivo de canciones");
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
+
 		fileChooser.setFileFilter(new FileNameExtensionFilter("Archivos XML", "xml"));
 
 		int userSelection = fileChooser.showSaveDialog(this);

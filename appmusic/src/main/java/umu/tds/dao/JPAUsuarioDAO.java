@@ -12,10 +12,10 @@ import javax.persistence.TypedQuery;
 import umu.tds.model.Cancion;
 import umu.tds.model.Playlist;
 import umu.tds.model.Usuario;
+import umu.tds.validation.Validador;
 import umu.tds.validation.ValidadorEmail;
 import umu.tds.validation.ValidadorFechaNac;
 import umu.tds.validation.ValidadorPassword;
-import umu.tds.validation.Validador;
 import umu.tds.validation.ValidationException;
 
 public class JPAUsuarioDAO implements UsuarioDAO {
@@ -361,6 +361,22 @@ public class JPAUsuarioDAO implements UsuarioDAO {
 		playlist.getCanciones().remove(cancion);
 		em.merge(playlist);
 
+		em.getTransaction().commit();
+		em.close();
+	}
+
+	@Override
+	public void setPremium(int usuarioId, boolean premium) {
+		EntityManager em = JPAUtil.getEntityManager();
+		em.getTransaction().begin();
+		Usuario usuario = em.find(Usuario.class, usuarioId);
+		if (usuario == null) {
+			em.getTransaction().rollback();
+			em.close();
+			throw new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId);
+		}
+		usuario.setPremium(premium);
+		em.merge(usuario);
 		em.getTransaction().commit();
 		em.close();
 	}

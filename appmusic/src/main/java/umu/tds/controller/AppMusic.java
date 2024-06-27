@@ -200,7 +200,6 @@ public class AppMusic implements ICancionesListener {
 		return DescuentoFactory.getDescuento(s);
 	}
 
-
 	public void cargarCanciones(String path) {
 		cargadorCanciones.setArchivoCanciones(path);
 	}
@@ -221,15 +220,14 @@ public class AppMusic implements ICancionesListener {
 
 				cancionDAO.addCancion(c.getTitulo(), interpretes, estiloCanciones, path, 0);
 			} catch (Exception e) {
-				 e.printStackTrace();
+				e.printStackTrace();
 				continue;
-			} 
+			}
 		}
 
 	}
 
-	private String descargarCancion(String urlPath, String interprete, String estilo, String titulo)
-			throws Exception {
+	private String descargarCancion(String urlPath, String interprete, String estilo, String titulo) throws Exception {
 		URL url = new URL(urlPath);
 		URLConnection uc = url.openConnection();
 
@@ -257,7 +255,7 @@ public class AppMusic implements ICancionesListener {
 
 		fos.close();
 		is.close();
-		
+
 		return pathCancion.toString();
 
 	}
@@ -266,6 +264,11 @@ public class AppMusic implements ICancionesListener {
 		File directorio = new File(path);
 		if (!directorio.exists())
 			directorio.mkdirs();
+	}
+
+	public boolean setPremium(int usuarioId, boolean premium) {
+		usuarioDAO.setPremium(usuarioId, premium);
+		return premium;
 	}
 
 }
