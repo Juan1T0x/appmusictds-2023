@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -22,6 +23,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import javafx.util.Duration;
 import tds.CargadorCanciones.CancionesEvent;
 import tds.CargadorCanciones.CargadorCanciones;
 import tds.CargadorCanciones.ICancionesListener;
@@ -37,6 +39,7 @@ import umu.tds.model.EstiloMusical;
 import umu.tds.model.Interprete;
 import umu.tds.model.Playlist;
 import umu.tds.model.Usuario;
+import umu.tds.player.Player;
 import umu.tds.validation.ValidationException;
 
 public class AppMusic implements ICancionesListener {
@@ -58,14 +61,22 @@ public class AppMusic implements ICancionesListener {
 	private UsuarioDAO usuarioDAO;
 	private CargadorCanciones cargadorCanciones;
 
+	private Player player;
+
 	private Usuario usuarioActual;
+
+	private Playlist playlistActual;
+	private Cancion cancionActual;
+	private int indicePlaylist;
+	private String modoReproduccion;
 
 	private AppMusic() {
 
 		inicializarAdaptadores();
 		cargadorCanciones = new CargadorCanciones();
+		player = new Player();
 		cargadorCanciones.addCancionesListener(this);
-
+		player.setOnEndOfMedia(() -> next()); // Detectar el fin de la canción y avanzar automáticamente
 	}
 
 	public static AppMusic getInstance() {
@@ -282,4 +293,81 @@ public class AppMusic implements ICancionesListener {
 		return premium;
 	}
 
+	public void setPlaylist(Playlist playlist) {
+		if (this.modoReproduccion.equals("Aleatorio")) {
+			int tamPlaylist = playlist.getCanciones().size();
+			Random rand = new Random();
+			indicePlaylist = rand.nextInt(tamPlaylist); // Genera un número aleatorio entre 0 y tamPlaylist-1
+		} else {
+			indicePlaylist = 0;
+		}
+		playlistActual = playlist;
+	}
+
+	public void play() {
+		if (cancionActual != null) {
+			player.play("stop", null); // Detener la canción actual antes de reproducir la nueva
+		}
+
+		cancionActual = playlistActual.getCanciones().get(indicePlaylist);
+		cancionDAO.aumentarReproduccion(cancionActual.getId());
+		player.play("play", cancionActual);
+	}
+
+	public void pause() {
+
+		player.play("pause", null);
+
+	}
+
+	public void stop() {
+
+		player.play("stop", null);
+
+	}
+
+	public void next() {
+		if (playlistActual != null && !playlistActual.getCanciones().isEmpty()) {
+			if (modoReproduccion.equals("Aleatorio")) {
+				Random rand = new Random();
+				indicePlaylist = rand.nextInt(playlistActual.getCanciones().size());
+			} else {
+				indicePlaylist = (indicePlaylist + 1) % playlistActual.getCanciones().size();
+			}
+			play();
+		}
+	}
+
+	public void previous() {
+		if (playlistActual != null && !playlistActual.getCanciones().isEmpty()) {
+			if (modoReproduccion.equals("Aleatorio")) {
+				Random rand = new Random();
+				indicePlaylist = rand.nextInt(playlistActual.getCanciones().size());
+			} else {
+				indicePlaylist = (indicePlaylist - 1 + playlistActual.getCanciones().size())
+						% playlistActual.getCanciones().size();
+			}
+			play();
+		}
+	}
+
+	public Cancion getCancionActual() {
+		return this.cancionActual;
+	}
+
+	public void setModoReproduccion(String modo) {
+		this.modoReproduccion = modo;
+	}
+
+	public Duration getTiempoActual() {
+		return player.getCurrentTime();
+	}
+
+	public Duration getDuracion() {
+		return player.getTotalDuration();
+	}
+
+	public void seek(Duration seekTime) {
+		player.seek(seekTime);
+	}
 }

@@ -23,6 +23,7 @@ import javax.swing.table.TableRowSorter;
 import umu.tds.controller.AppMusic;
 import umu.tds.model.Cancion;
 import umu.tds.model.EstiloMusical;
+import umu.tds.model.Playlist;
 
 public class PanelBuscar extends JPanel {
 
@@ -117,15 +118,14 @@ public class PanelBuscar extends JPanel {
 			estilosDropdown.addItem(estilo.getNombre());
 		}
 	}
-	
+
 	private void buscar() {
-		// TODO: Ahora mismo solo busca 1 interprete, pueden haber varios
 		String tituloBusqueda = textBuscarTitulo.getText().trim().toLowerCase();
 		String interpreteBusqueda = textBuscarInterprete.getText().trim().toLowerCase();
 		String estiloSeleccionado = (String) estilosDropdown.getSelectedItem();
-		
+
 		cancionesMostradas = appMusic.queryListaCanciones(tituloBusqueda, interpreteBusqueda, estiloSeleccionado);
-		
+
 		actualizarTabla(cancionesMostradas);
 	}
 
@@ -148,6 +148,13 @@ public class PanelBuscar extends JPanel {
 
 	public List<Cancion> getCancionesMostradas() {
 		return cancionesMostradas;
+	}
+
+	public Playlist crearPlaylistDesdeCancionesMostradas() {
+		Playlist playlist = new Playlist();
+		playlist.setNombre("Resultados de búsqueda");
+		playlist.setCanciones(cancionesMostradas);
+		return playlist;
 	}
 
 	public List<Cancion> getCancionesSeleccionadas() {

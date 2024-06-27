@@ -4,11 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.Timer;
+
+import javafx.util.Duration;
+import umu.tds.controller.AppMusic;
 
 public class PanelReproductor extends JPanel {
 
@@ -16,14 +22,37 @@ public class PanelReproductor extends JPanel {
 	private VentanaPrincipal ventanaPrincipal; // Referencia a la VentanaPrincipal
 	private JSlider sliderProgreso;
 
+	private AppMusic appMusic;
+
 	public PanelReproductor(VentanaPrincipal ventanaPrincipal) {
+
+		appMusic = AppMusic.getInstance();
+
 		this.ventanaPrincipal = ventanaPrincipal; // Inicializar la referencia
 		setLayout(new BorderLayout());
 		sliderProgreso = new JSlider();
+		sliderProgreso.setValue(0);
+		sliderProgreso.setMaximum(100);
+		sliderProgreso.setMinimum(0);
+		sliderProgreso.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				int value = sliderProgreso.getValue();
+				Duration totalDuration = appMusic.getDuracion();
+				Duration seekTime = totalDuration.multiply(value / 100.0);
+				appMusic.seek(seekTime);
+			}
+		});
 		add(sliderProgreso, BorderLayout.NORTH);
 		JPanel panelBotones = new JPanel(new GridLayout(1, 6, 4, 0));
 		add(panelBotones, BorderLayout.CENTER);
 		agregarBotonesReproductor(panelBotones);
+
+		// Iniciar el timer para actualizar el slider de progreso cada segundo
+		Timer timer = new Timer(1000, e -> actualizarProgreso());
+		timer.start();
+
+		ventanaPrincipal.actualizarCancionActual("Ninguna canción en reproducción");
 	}
 
 	private void agregarBotonesReproductor(JPanel panelBotones) {
@@ -43,28 +72,43 @@ public class PanelReproductor extends JPanel {
 		return boton;
 	}
 
-	private void handlePlay() {
+	public void handlePlay() {
 		// Lógica para reproducir canción
-		ventanaPrincipal.actualizarCancionActual("Reproduciendo: Canción 1");
+		appMusic.play();
+		ventanaPrincipal.actualizarCancionActual("Reproduciendo: " + appMusic.getCancionActual().getTitulo());
 	}
 
 	private void handlePause() {
 		// Lógica para pausar canción
-		ventanaPrincipal.actualizarCancionActual("Pausada: Canción 1");
+		appMusic.pause();
+		ventanaPrincipal.actualizarCancionActual("Pausada: " + appMusic.getCancionActual().getTitulo());
 	}
 
 	private void handleStop() {
 		// Lógica para detener canción
+		appMusic.stop();
 		ventanaPrincipal.actualizarCancionActual("Ninguna canción en reproducción");
 	}
 
 	private void handlePrevious() {
 		// Lógica para canción anterior
-		ventanaPrincipal.actualizarCancionActual("Reproduciendo: Canción Anterior");
+		appMusic.previous();
+		ventanaPrincipal.actualizarCancionActual("Reproduciendo: " + appMusic.getCancionActual().getTitulo());
 	}
 
 	private void handleNext() {
 		// Lógica para siguiente canción
-		ventanaPrincipal.actualizarCancionActual("Reproduciendo: Siguiente Canción");
+		appMusic.next();
+		ventanaPrincipal.actualizarCancionActual("Reproduciendo: " + appMusic.getCancionActual().getTitulo());
+	}
+
+	private void actualizarProgreso() {
+		Duration currentTime = appMusic.getTiempoActual();
+		Duration totalDuration = appMusic.getDuracion();
+
+		if (totalDuration != Duration.UNKNOWN && totalDuration != null) {
+			int progress = (int) ((currentTime.toSeconds() / totalDuration.toSeconds()) * 100);
+			sliderProgreso.setValue(progress);
+		}
 	}
 }

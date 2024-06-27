@@ -9,7 +9,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -33,11 +32,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.itextpdf.text.DocumentException;
 
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import umu.tds.controller.AppMusic;
 import umu.tds.descuento.Descuento;
-import umu.tds.model.Cancion;
 import umu.tds.model.Playlist;
 
 public class VentanaPrincipal extends JFrame {
@@ -53,7 +49,6 @@ public class VentanaPrincipal extends JFrame {
 	private JButton btnModoReproduccion; // Botón de modo de reproducción
 
 	private AppMusic appMusic;
-	private MediaPlayer mediaPlayer;
 
 	private PanelMisPlaylist panelMisPlaylist; // Añadir referencia a PanelMisPlaylist
 	private PanelRecientes panelRecientes; // Añadir referencia a PanelRecientes
@@ -119,8 +114,11 @@ public class VentanaPrincipal extends JFrame {
 					if (playlistName != null) {
 						System.out.println("Playlist seleccionada: " + playlistName); // Imprimir el nombre de la
 																						// playlist
-						panelMisPlaylist.setPlaylist(appMusic.getAllPlaylists(appMusic.getUsuarioActual().getId())
-								.stream().filter(pl -> pl.getNombre().equals(playlistName)).findFirst().orElse(null));
+
+						Playlist playlistActual = appMusic.getAllPlaylists(appMusic.getUsuarioActual().getId()).stream()
+								.filter(pl -> pl.getNombre().equals(playlistName)).findFirst().orElse(null);
+						panelMisPlaylist.setPlaylist(playlistActual);
+						appMusic.setPlaylist(playlistActual);
 						mostrarPanel(panelMisPlaylist); // Mostrar PanelMisPlaylist
 					}
 				}
@@ -133,12 +131,15 @@ public class VentanaPrincipal extends JFrame {
 				if (evt.getClickCount() == 2) {
 					String playlistName = listPlaylists.getSelectedValue();
 					if (playlistName != null) {
-						Playlist playlist = appMusic.getAllPlaylists(appMusic.getUsuarioActual().getId()).stream()
+						System.out.println("Playlist seleccionada: " + playlistName); // Imprimir el nombre de la
+																						// playlist
+
+						Playlist playlistActual = appMusic.getAllPlaylists(appMusic.getUsuarioActual().getId()).stream()
 								.filter(pl -> pl.getNombre().equals(playlistName)).findFirst().orElse(null);
-						if (playlist != null && !playlist.getCanciones().isEmpty()) {
-							Cancion firstCancion = playlist.getCanciones().get(0);
-							reproducirCancion(firstCancion);
-						}
+						panelMisPlaylist.setPlaylist(playlistActual);
+						appMusic.setPlaylist(playlistActual);
+						appMusic.play();
+						mostrarPanel(panelMisPlaylist); // Mostrar PanelMisPlaylist
 					}
 				}
 			}
@@ -215,6 +216,7 @@ public class VentanaPrincipal extends JFrame {
 		// Añadir el panel para el botón de modo de reproducción
 		JPanel panelModoReproduccion = new JPanel();
 		btnModoReproduccion = new JButton("Modo: Secuencial");
+		appMusic.setModoReproduccion("Secuencial");
 		btnModoReproduccion.addActionListener(e -> cambiarModoReproduccion());
 		panelModoReproduccion.add(btnModoReproduccion);
 		GridBagConstraints gbcPanelModoReproduccion = new GridBagConstraints();
@@ -243,8 +245,10 @@ public class VentanaPrincipal extends JFrame {
 		isModoAleatorio = !isModoAleatorio;
 		if (isModoAleatorio) {
 			btnModoReproduccion.setText("Modo: Aleatorio");
+			appMusic.setModoReproduccion("Aleatorio");
 		} else {
 			btnModoReproduccion.setText("Modo: Secuencial");
+			appMusic.setModoReproduccion("Secuencial");
 		}
 	}
 
@@ -256,6 +260,10 @@ public class VentanaPrincipal extends JFrame {
 			boton.addActionListener(e -> {
 				if (panelFuncion == panelGestionPlaylist) {
 					panelGestionPlaylist.cargarCancionesDeBusqueda(); // Cargar canciones del panel de búsqueda
+				}
+				if (panelFuncion == panelBuscar) {
+					Playlist playlist = panelBuscar.crearPlaylistDesdeCancionesMostradas();
+					appMusic.setPlaylist(playlist);
 				}
 				mostrarPanel(panelFuncion);
 			});
@@ -417,23 +425,4 @@ public class VentanaPrincipal extends JFrame {
 		}
 	}
 
-	// Método para reproducir canción
-	public void reproducirCancion(Cancion cancion) {
-		try {
-			if (mediaPlayer != null) {
-				mediaPlayer.stop();
-			}
-			URL resourceURL = getClass().getResource(cancion.getUrl());
-			if (resourceURL == null)
-				throw new FileNotFoundException("Fichero canción no encontrado: " + cancion.getUrl());
-			Media hit = new Media(resourceURL.toExternalForm());
-			mediaPlayer = new MediaPlayer(hit);
-			mediaPlayer.play();
-			actualizarCancionActual("Reproduciendo: " + cancion.getTitulo());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Error al reproducir la canción: " + ex.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
 }

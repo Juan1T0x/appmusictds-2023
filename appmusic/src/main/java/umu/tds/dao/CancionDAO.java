@@ -19,4 +19,6 @@ public interface CancionDAO {
 	List<Cancion> getTopCanciones(int maxResults);
 
 	List<Cancion> queryListaCanciones(String titulo, String interpretes, String estilo);
+
+	void aumentarReproduccion(int id);
 }

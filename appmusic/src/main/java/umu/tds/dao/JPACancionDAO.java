@@ -235,4 +235,19 @@ public class JPACancionDAO implements CancionDAO {
 		}
 	}
 
+	@Override
+	public void aumentarReproduccion(int id) {
+		EntityManager em = JPAUtil.getEntityManager();
+		em.getTransaction().begin();
+
+		Cancion cancion = em.find(Cancion.class, id);
+		if (cancion != null) {
+			cancion.setNumReproducciones(cancion.getNumReproducciones() + 1);
+			em.merge(cancion);
+		}
+
+		em.getTransaction().commit();
+		em.close();
+	}
+
 }
