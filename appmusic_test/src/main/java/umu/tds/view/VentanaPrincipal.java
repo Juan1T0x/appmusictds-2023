@@ -360,9 +360,9 @@ public class VentanaPrincipal extends JFrame {
 			for (Playlist p : plst) {
 				documentoPDF.add(new Paragraph(p.getNombre()));
 				for (Cancion c : p.getCanciones()) {
-					StringBuilder linea = new StringBuilder(c.getTitulo() + "\t");
+					StringBuilder linea = new StringBuilder("      " + c.getTitulo() + "      ");
 					for (Interprete i : c.getInterpretes()) {
-						linea.append(i.getNombre()).append("\t");
+						linea.append(i.getNombre()).append("     ");
 					}
 					linea.append(c.getEstilo().getNombre());
 					documentoPDF.add(new Paragraph(linea.toString()));
