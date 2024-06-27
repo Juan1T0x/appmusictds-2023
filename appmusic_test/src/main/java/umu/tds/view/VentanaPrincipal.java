@@ -9,7 +9,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -30,18 +29,12 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
 
 import umu.tds.controller.AppMusic;
 import umu.tds.descuento.Descuento;
 import umu.tds.descuento.DescuentoFactory;
-import umu.tds.model.Cancion;
-import umu.tds.model.Interprete;
 import umu.tds.model.Playlist;
-import umu.tds.model.Usuario;
 
 public class VentanaPrincipal extends JFrame {
 
@@ -339,42 +332,18 @@ public class VentanaPrincipal extends JFrame {
 		fileChooser.setCurrentDirectory(new java.io.File("."));
 		fileChooser.setDialogTitle("Selecciona un directorio");
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-		Usuario usuarioActual = appMusic.getUsuarioActual();
-
 		int userSelection = fileChooser.showSaveDialog(this);
 		if (userSelection == JFileChooser.APPROVE_OPTION) {
-			String filePath = fileChooser.getSelectedFile().getAbsolutePath() + File.separator + usuarioActual.getUser()
-					+ ".pdf";
-			createPDF(filePath, usuarioActual);
-		}
-	}
-
-	private void createPDF(String filePath, Usuario usuarioActual) {
-		Document documentoPDF = new Document();
-		try {
-			PdfWriter.getInstance(documentoPDF, new FileOutputStream(filePath));
-			documentoPDF.open();
-			List<Playlist> plst = appMusic.getAllPlaylists(usuarioActual.getId());
-
-			for (Playlist p : plst) {
-				documentoPDF.add(new Paragraph(p.getNombre()));
-				for (Cancion c : p.getCanciones()) {
-					StringBuilder linea = new StringBuilder("      " + c.getTitulo() + "      ");
-					for (Interprete i : c.getInterpretes()) {
-						linea.append(i.getNombre()).append("     ");
-					}
-					linea.append(c.getEstilo().getNombre());
-					documentoPDF.add(new Paragraph(linea.toString()));
-				}
+			String filePath = fileChooser.getSelectedFile().getAbsolutePath() + File.separator ;
+			try {
+				appMusic.crearPDF(filePath);
+			} catch (FileNotFoundException | DocumentException e) {
+				JOptionPane.showMessageDialog(this, "Error al generar el PDF: " + e.getMessage(), "Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
-		} catch (FileNotFoundException | DocumentException e) {
-			JOptionPane.showMessageDialog(this, "Error al generar el PDF: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-		} finally {
-			documentoPDF.close();
 		}
 	}
+
 
 	// Método para actualizar la canción actual
 	public void actualizarCancionActual(String cancion) {

@@ -1,9 +1,16 @@
 package umu.tds.controller;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import umu.tds.dao.CancionDAO;
 import umu.tds.dao.EstiloMusicalDAO;
@@ -12,6 +19,7 @@ import umu.tds.dao.UsuarioDAO;
 import umu.tds.factory.DAOFactory;
 import umu.tds.model.Cancion;
 import umu.tds.model.EstiloMusical;
+import umu.tds.model.Interprete;
 import umu.tds.model.Playlist;
 import umu.tds.model.Usuario;
 import umu.tds.validation.ValidationException;
@@ -118,6 +126,29 @@ public class AppMusic {
 		interpreteDAO = daoFactory.getInterpreteDAO();
 		estiloMusicalDAO = daoFactory.getEstiloMusicalDAO();
 		usuarioDAO = daoFactory.getUsuarioDAO();
+	}
+
+	public void crearPDF(String filePath) throws FileNotFoundException, DocumentException {
+		Document documentoPDF = new Document();
+		try {
+			PdfWriter.getInstance(documentoPDF, new FileOutputStream(filePath));
+			documentoPDF.open();
+			List<Playlist> plst = getAllPlaylists(usuarioActual.getId());
+
+			for (Playlist p : plst) {
+				documentoPDF.add(new Paragraph(p.getNombre()));
+				for (Cancion c : p.getCanciones()) {
+					StringBuilder linea = new StringBuilder("      " + c.getTitulo() + "      ");
+					for (Interprete i : c.getInterpretes()) {
+						linea.append(i.getNombre()).append("     ");
+					}
+					linea.append(c.getEstilo().getNombre());
+					documentoPDF.add(new Paragraph(linea.toString()));
+				}
+			}
+		} finally {
+			documentoPDF.close();
+		}
 	}
 
 
