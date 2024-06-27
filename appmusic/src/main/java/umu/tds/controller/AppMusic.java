@@ -42,7 +42,15 @@ import umu.tds.validation.ValidationException;
 public class AppMusic implements ICancionesListener {
 
 	private static AppMusic instance = null;
-	private static String PATH_CANCIONES = new File(".").getAbsolutePath();
+
+	private static final String FECHA_DEFAULT = "1970-01-01";
+	private static final String FORMATO_FECHA = "yyyy-MM-dd";
+	private static final String SEP_PDF = "      ";
+	private static final int BUF_SIZE = 2048;
+	private static final String MP3 = ".mp3";
+	private static final String SEP_INTERPRETE = "-";
+	private static String PATH = new File(".").getAbsolutePath();
+	private static String PATH_CANCIONES = "src\\main\\resources\\canciones\\";
 
 	private CancionDAO cancionDAO;
 	private InterpreteDAO interpreteDAO;
@@ -61,8 +69,12 @@ public class AppMusic implements ICancionesListener {
 	}
 
 	public static AppMusic getInstance() {
-		if (instance == null)
+		if (instance == null) {
+			String s = new File(".").getAbsolutePath();
+			PATH = s.substring(0, PATH.length() - 1);
 			instance = new AppMusic();
+
+		}
 		return instance;
 	}
 
@@ -76,8 +88,8 @@ public class AppMusic implements ICancionesListener {
 
 				if (usuarioExistente == null) {
 					// El usuario no existe, registrarlo
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-					Date fechaNac = sdf.parse("1970-01-01");
+					SimpleDateFormat sdf = new SimpleDateFormat(FORMATO_FECHA);
+					Date fechaNac = sdf.parse(FECHA_DEFAULT);
 					String username = email.split("@")[0];
 					boolean registrado = usuarioDAO.addUsuario(email, fechaNac, username, password, false);
 					if (registrado) {
@@ -183,9 +195,9 @@ public class AppMusic implements ICancionesListener {
 			for (Playlist p : plst) {
 				documentoPDF.add(new Paragraph(p.getNombre()));
 				for (Cancion c : p.getCanciones()) {
-					StringBuilder linea = new StringBuilder("      " + c.getTitulo() + "      ");
+					StringBuilder linea = new StringBuilder(SEP_PDF + c.getTitulo() + SEP_PDF);
 					for (Interprete i : c.getInterpretes()) {
-						linea.append(i.getNombre()).append("     ");
+						linea.append(i.getNombre()).append(SEP_PDF);
 					}
 					linea.append(c.getEstilo().getNombre());
 					documentoPDF.add(new Paragraph(linea.toString()));
@@ -216,7 +228,7 @@ public class AppMusic implements ICancionesListener {
 
 				String path = descargarCancion(urlPath, interpreteCanciones, estiloCanciones, tituloCanciones);
 
-				List<String> interpretes = Arrays.asList(interpreteCanciones.split("-"));
+				List<String> interpretes = Arrays.asList(interpreteCanciones.split(SEP_INTERPRETE));
 
 				cancionDAO.addCancion(c.getTitulo(), interpretes, estiloCanciones, path, 0);
 			} catch (Exception e) {
@@ -233,20 +245,20 @@ public class AppMusic implements ICancionesListener {
 
 		InputStream is = new BufferedInputStream(uc.getInputStream());
 
-		StringBuilder pathCancion = new StringBuilder(PATH_CANCIONES.substring(0, PATH_CANCIONES.length() - 1));
+		StringBuilder pathCancion = new StringBuilder(PATH);
 
-		pathCancion.append("src\\main\\resources\\canciones\\");
+		pathCancion.append(PATH_CANCIONES);
 
 		pathCancion.append(estilo + File.separator);
 
 		crearDirectorio(pathCancion.toString());
 
-		pathCancion.append(interprete + "-");
-		pathCancion.append(titulo + ".mp3");
+		pathCancion.append(interprete + SEP_INTERPRETE);
+		pathCancion.append(titulo + MP3);
 
 		FileOutputStream fos = new FileOutputStream(pathCancion.toString());
 
-		byte[] buffer = new byte[2048];
+		byte[] buffer = new byte[BUF_SIZE];
 
 		int bytesLeidos;
 
@@ -257,7 +269,6 @@ public class AppMusic implements ICancionesListener {
 		is.close();
 
 		return pathCancion.toString();
-
 	}
 
 	private void crearDirectorio(String path) {
