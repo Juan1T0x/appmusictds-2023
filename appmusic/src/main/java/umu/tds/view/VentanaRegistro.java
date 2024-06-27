@@ -71,6 +71,7 @@ public class VentanaRegistro {
 
 		JButton btnVolver = new JButton("Volver");
 		btnVolver.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				handleVolver();
 			}
@@ -79,6 +80,7 @@ public class VentanaRegistro {
 
 		JButton btnRegister = new JButton("Register");
 		btnRegister.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				handleRegister(panelBotones);
 			}
@@ -105,16 +107,14 @@ public class VentanaRegistro {
 		String email = textEmail.getText();
 		Date fechaNac = calendar.getDate();
 		String user = textUser.getText();
-		String password = new String(passwordField.getPassword()); // Convert password field to string
-		boolean premium = false; // TODO
+		String password = new String(passwordField.getPassword()); 
+		boolean premium = false; 
 
 		try {
-			// Check for empty fields
 			if (email.isEmpty() || fechaNac == null || user.isEmpty() || password.isEmpty()) {
 				throw new IllegalArgumentException("Todos los campos son obligatorios.");
 			}
 
-			// Attempt to register the user
 			boolean registrado = appMusic.registrarUsuario(email, fechaNac, user, password, premium);
 			if (registrado) {
 				JOptionPane.showMessageDialog(panelBotones, "Usuario dado de alta", "Registrar usuario",
