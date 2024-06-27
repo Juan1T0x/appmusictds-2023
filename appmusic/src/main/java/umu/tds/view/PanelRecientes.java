@@ -11,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
 
 import umu.tds.controller.AppMusic;
 import umu.tds.model.Cancion;
+import umu.tds.model.Playlist;
 
 public class PanelRecientes extends JPanel {
 
@@ -44,7 +45,7 @@ public class PanelRecientes extends JPanel {
 		cargarCancionesRecientes();
 	}
 
-	private void cargarCancionesRecientes() {
+	public void cargarCancionesRecientes() {
 		modeloTabla.setRowCount(0);
 		List<Cancion> cancionesRecientes = appMusic.getCancionesRecientes(appMusic.getUsuarioActual().getId());
 		for (Cancion cancion : cancionesRecientes) {
@@ -53,5 +54,13 @@ public class PanelRecientes extends JPanel {
 			String estilo = cancion.getEstilo().getNombre();
 			modeloTabla.addRow(new Object[] { titulo, interprete, estilo, false });
 		}
+	}
+
+	public Playlist crearPlaylistDesdeCancionesRecientes() {
+		List<Cancion> cancionesRecientes = appMusic.getCancionesRecientes(appMusic.getUsuarioActual().getId());
+		Playlist playlist = new Playlist();
+		playlist.setNombre("Recientes");
+		playlist.setCanciones(cancionesRecientes);
+		return playlist;
 	}
 }
