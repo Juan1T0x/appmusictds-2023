@@ -28,7 +28,8 @@ public class JPACancionDAO implements CancionDAO {
 	}
 
 	@Override
-	public int addCancion(String titulo, List<String> interpreteNombres, String estiloNombre) {
+	public int addCancion(String titulo, List<String> interpreteNombres, String estiloNombre, String url,
+			int duracion) {
 		EntityManager em = JPAUtil.getEntityManager();
 		em.getTransaction().begin();
 
@@ -48,6 +49,8 @@ public class JPACancionDAO implements CancionDAO {
 		cancion.setNumReproducciones(0); // Número de reproducciones se establece a 0
 		cancion.setEstilo(estilo);
 		cancion.setInterpretes(interpretes);
+		cancion.setUrl(url);
+		cancion.setDuracion(duracion);
 
 		em.persist(cancion);
 		em.getTransaction().commit();
@@ -142,65 +145,63 @@ public class JPACancionDAO implements CancionDAO {
 		em.close();
 		return topCanciones;
 	}
-	
+
 	@Override
 	public List<Cancion> queryListaCanciones(String titulo, String interpretes, String estilo) {
-	    EntityManager em = JPAUtil.getEntityManager();
-	    StringBuilder sQuery = new StringBuilder("SELECT c FROM Cancion c ");
-	    
-	    // Añadir los JOINs necesarios
-	    if (!estilo.isEmpty()) {
-	        sQuery.append("JOIN c.estilo e ");
-	    }
-	    if (!interpretes.isEmpty()) {
-	        sQuery.append("JOIN c.interpretes i ");
-	    }
-	    
-	    // Añadir las condiciones WHERE
-	    boolean whereAnadido = false;
+		EntityManager em = JPAUtil.getEntityManager();
+		StringBuilder sQuery = new StringBuilder("SELECT c FROM Cancion c ");
 
-	    if (!titulo.isEmpty()) {
-	        sQuery.append("WHERE c.titulo LIKE :titulo ");
-	        whereAnadido = true;
-	    }
+		// Añadir los JOINs necesarios
+		if (!estilo.isEmpty()) {
+			sQuery.append("JOIN c.estilo e ");
+		}
+		if (!interpretes.isEmpty()) {
+			sQuery.append("JOIN c.interpretes i ");
+		}
 
-	    if (!estilo.isEmpty()) {
-	        if (!whereAnadido) {
-	            sQuery.append("WHERE e.nombre = :estilo ");
-	            whereAnadido = true;
-	        } else {
-	            sQuery.append("AND e.nombre = :estilo ");
-	        }
-	    }
+		// Añadir las condiciones WHERE
+		boolean whereAnadido = false;
 
-	    if (!interpretes.isEmpty()) {
-	        if (!whereAnadido) {
-	            sQuery.append("WHERE i.nombre LIKE :interpretes ");
-	            whereAnadido = true;
-	        } else {
-	            sQuery.append("AND i.nombre LIKE :interpretes ");
-	        }
-	    }
+		if (!titulo.isEmpty()) {
+			sQuery.append("WHERE c.titulo LIKE :titulo ");
+			whereAnadido = true;
+		}
 
-	    TypedQuery<Cancion> query = em.createQuery(sQuery.toString(), Cancion.class);
+		if (!estilo.isEmpty()) {
+			if (!whereAnadido) {
+				sQuery.append("WHERE e.nombre = :estilo ");
+				whereAnadido = true;
+			} else {
+				sQuery.append("AND e.nombre = :estilo ");
+			}
+		}
 
-	    // Establecer parámetros
-	    if (!titulo.isEmpty()) {
-	        query.setParameter("titulo", "%" + titulo + "%");
-	    }
-	    if (!estilo.isEmpty()) {
-	        query.setParameter("estilo", estilo);
-	    }
-	    if (!interpretes.isEmpty()) {
-	        query.setParameter("interpretes", "%" + interpretes + "%");
-	    }
-	    
-	    List<Cancion> canciones = query.getResultList();
-	    em.close();
-	    return canciones;
+		if (!interpretes.isEmpty()) {
+			if (!whereAnadido) {
+				sQuery.append("WHERE i.nombre LIKE :interpretes ");
+				whereAnadido = true;
+			} else {
+				sQuery.append("AND i.nombre LIKE :interpretes ");
+			}
+		}
+
+		TypedQuery<Cancion> query = em.createQuery(sQuery.toString(), Cancion.class);
+
+		// Establecer parámetros
+		if (!titulo.isEmpty()) {
+			query.setParameter("titulo", "%" + titulo + "%");
+		}
+		if (!estilo.isEmpty()) {
+			query.setParameter("estilo", estilo);
+		}
+		if (!interpretes.isEmpty()) {
+			query.setParameter("interpretes", "%" + interpretes + "%");
+		}
+
+		List<Cancion> canciones = query.getResultList();
+		em.close();
+		return canciones;
 	}
-
-
 
 	private EstiloMusical findOrCreateEstiloMusical(EntityManager em, String nombre) {
 		TypedQuery<EstiloMusical> query = em.createQuery("SELECT e FROM EstiloMusical e WHERE e.nombre = :nombre",
@@ -234,5 +235,4 @@ public class JPACancionDAO implements CancionDAO {
 		}
 	}
 
-	
 }

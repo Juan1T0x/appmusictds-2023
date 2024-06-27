@@ -81,7 +81,7 @@ public class DatabaseInitializer {
 			}
 
 			// Añadir canción
-			cancionDAO.addCancion(titulo, Arrays.asList(interpreteNombre), estilo);
+			cancionDAO.addCancion(titulo, Arrays.asList(interpreteNombre), estilo, "", 0);
 		}
 	}
 

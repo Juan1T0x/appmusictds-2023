@@ -26,6 +26,10 @@ public class Cancion {
 
 	private long numReproducciones;
 
+	private String url;
+
+	private int duracion;
+
 	public Cancion() { // POJO
 
 	}
@@ -70,10 +74,26 @@ public class Cancion {
 		this.numReproducciones = numReproducciones;
 	}
 
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public int getDuracion() {
+		return duracion;
+	}
+
+	public void setDuracion(int duracion) {
+		this.duracion = duracion;
+	}
+
 	@Override
 	public String toString() {
 		return "Cancion [id=" + id + ", titulo=" + titulo + ", interpretes=" + interpretes + ", estilo=" + estilo
-				+ ", numReproducciones=" + numReproducciones + "]";
+				+ ", numReproducciones=" + numReproducciones + ", url=" + url + ", duracion=" + duracion + "]";
 	}
 
 }

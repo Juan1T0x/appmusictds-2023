@@ -2,10 +2,14 @@ package umu.tds.controller;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
+
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -49,9 +53,36 @@ public class AppMusic {
 		return instance;
 	}
 
-	public boolean loginConGitHub(String usuario, String password) {
-		// TODO Auto-generated method stub
-		return true;
+	public boolean loginConGitHub(String email, String password) {
+		try {
+			GitHub github = new GitHubBuilder().withPassword(email, password).build();
+			if (github.isCredentialValid()) {
+				List<Usuario> usuarios = usuarioDAO.getAllUsuarios();
+				Usuario usuarioExistente = usuarios.stream().filter(u -> u.getEmail().equalsIgnoreCase(email))
+						.findFirst().orElse(null);
+
+				if (usuarioExistente == null) {
+					// El usuario no existe, registrarlo
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+					Date fechaNac = sdf.parse("1970-01-01");
+					String username = email.split("@")[0];
+					boolean registrado = usuarioDAO.addUsuario(email, fechaNac, username, password, false);
+					if (registrado) {
+						usuarioActual = usuarioDAO.getUsuarioByUsername(username);
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					// El usuario ya existe, hacer login
+					usuarioActual = usuarioExistente;
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public boolean registrarUsuario(String email, Date fechaNac, String user, String password, boolean premium)
@@ -116,11 +147,10 @@ public class AppMusic {
 	public void removeCancionFromPlaylist(int usuarioId, int playlistId, int cancionId) {
 		usuarioDAO.removeCancionFromPlaylist(usuarioId, playlistId, cancionId);
 	}
-	
+
 	public List<Cancion> queryListaCanciones(String titulo, String interprete, String estilo) {
 		return cancionDAO.queryListaCanciones(titulo, interprete, estilo);
 	}
-
 
 	private void inicializarAdaptadores() {
 		DAOFactory daoFactory = DAOFactory.getDAOFactory(DAOFactory.JPA);
@@ -156,6 +186,5 @@ public class AppMusic {
 	public Descuento getDescuento(String s) {
 		return DescuentoFactory.getDescuento(s);
 	}
-
 
 }
