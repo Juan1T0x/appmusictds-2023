@@ -6,14 +6,6 @@ El proyecto será desarrollado usando un Diseño Orientado al Dominio de la sigu
 
 ```none
 |- appMusic
-|   |- interfaz gráfica (Java Swing)
-|   |- lógica de negocio
-|   |- persistencia (H2 probablemente)
-
+|- CargadorCanciones
+ 
 ```
-
-Faltan elegir nombres para las carpetas
-
-## Estructura de la lógica de negocio y persistencia
-
-![Estructura provisional de la lógica de negocio](estructura-negocio/CD-AppMusic.png)
